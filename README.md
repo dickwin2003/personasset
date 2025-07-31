@@ -1,9 +1,14 @@
 
-# 个人大型资产管理系统
+# 个人大型资产管理系统 (Converasset)
 
 这是一个专为管理个人大型资产而设计的记录和跟踪系统，基于HTML、CSS和JavaScript构建，无需服务器支持，所有数据都存储在浏览器本地。适用于房产、股票、基金、大额存款、负债等资产的管理。
 
-![项目截图](screenshot.png) <!-- 如果有截图可以添加 -->
+## 项目截图
+
+<div style="display: flex; justify-content: space-around; flex-wrap: wrap;">
+  <img src="docs/screenshots/screenshot1.png" alt="记录页面" style="width: 45%; margin-bottom: 10px;">
+  <img src="docs/screenshots/screenshot2.png" alt="总览页面" style="width: 45%; margin-bottom: 10px;">
+</div>
 
 ## 功能特点
 
@@ -19,7 +24,8 @@
 - **历史数据编辑**：可查看和编辑历史资产记录
 - **离线使用支持**：通过Service Worker支持离线访问
 - **响应式设计**：适配各种设备屏幕尺寸
-- **版本控制**：使用Git进行版本管理，便于追踪变更和协作开发
+- **PWA支持**：可以安装为桌面应用，提供类似原生应用的体验
+- **开源许可证**：采用GPLv3许可证，确保代码的开放性和可追溯性
 
 ## 安装和使用
 
@@ -30,7 +36,7 @@
 ### 本地开发
 1. 克隆项目到本地：
    ```bash
-   git clone <项目地址>
+   git clone https://github.com/nbzz/converasset.git
    ```
 2. 进入项目目录：
    ```bash
@@ -74,6 +80,7 @@
 - Chart.js（图表绘制）
 - Font Awesome（图标）
 - localStorage（数据存储）
+- Service Worker（PWA支持）
 - Git（版本控制）
 
 ## 数据存储
@@ -114,6 +121,18 @@ git log --oneline
 - [ ] 资产异动分析
 - [ ] 数据分析报告
 
+## 贡献
+
+欢迎提交Issue和Pull Request来帮助改进这个项目。在提交代码前，请确保：
+
+1. 遵循现有的代码风格
+2. 添加适当的注释
+3. 测试您的更改
+
 ## 许可证
 
 本项目采用GNU通用公共许可证第3版（GPLv3），详情请见 [LICENSE](LICENSE) 文件。
+
+## 联系方式
+
+如有任何问题或建议，请通过GitHub Issues与我们联系。
