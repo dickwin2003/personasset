@@ -1028,9 +1028,98 @@ function renderPieChart() {
                         }
                     }
                 },
-                // 禁用数据标签插件
+                // 为饼图配置数据标签插件
                 datalabels: {
-                    display: false
+                    // 只对第二个数据集（外环/负资产）显示标签
+                    display: function(context) {
+                        // 只在第二个数据集（外环）显示标签
+                        if (context.datasetIndex !== 1) {
+                            return false;
+                        }
+                        
+                        // 只在较大的扇区显示标签（占比大于5%）
+                        const value = context.dataset.data[context.dataIndex];
+                        const total = context.dataset.data.reduce((acc, val) => acc + (val || 0), 0);
+                        const percentage = total > 0 ? (value / total) * 100 : 0;
+                        return percentage > 5;
+                    },
+                    formatter: function(value, context) {
+                        // 获取账户名称和原始值
+                        const index = context.dataIndex;
+                        const allLabels = [...positiveAccounts, ...negativeAccounts];
+                        const accountName = allLabels[index];
+                        const isNegative = negativeAccounts.includes(accountName);
+                        
+                        // 获取原始值（未经过单位转换的）
+                        const rawValue = isNegative ? -accountTotals[accountName] : accountTotals[accountName];
+                        
+                        // 计算百分比
+                        const total = context.dataset.data.reduce((acc, val) => acc + (val || 0), 0);
+                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0';
+                        
+                        // 格式化金额（根据设置决定是否显示小数点）
+                        let formattedValue;
+                        if (state.data.config.showDecimal) {
+                            // 根据单位进行格式化（带小数点）
+                            const unit = state.data.config.units.overview;
+                            if (unit === "亿") {
+                                formattedValue = (rawValue / unitValues["亿"]).toFixed(2) + '亿';
+                            } else if (unit === "千万") {
+                                formattedValue = (rawValue / unitValues["千万"]).toFixed(2) + '千万';
+                            } else if (unit === "百万") {
+                                formattedValue = (rawValue / unitValues["百万"]).toFixed(2) + '百万';
+                            } else if (unit === "十万") {
+                                formattedValue = (rawValue / unitValues["十万"]).toFixed(2) + '十万';
+                            } else if (unit === "万") {
+                                formattedValue = (rawValue / unitValues["万"]).toFixed(2) + '万';
+                            } else if (unit === "千") {
+                                formattedValue = (rawValue / unitValues["千"]).toFixed(2) + '千';
+                            } else {
+                                // 对于"元"单位，使用千分位符格式
+                                formattedValue = rawValue.toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                });
+                            }
+                        } else {
+                            // 不显示小数点，使用整数格式
+                            const unit = state.data.config.units.overview;
+                            if (unit === "亿") {
+                                formattedValue = Math.round(rawValue / unitValues["亿"]) + '亿';
+                            } else if (unit === "千万") {
+                                formattedValue = Math.round(rawValue / unitValues["千万"]) + '千万';
+                            } else if (unit === "百万") {
+                                formattedValue = Math.round(rawValue / unitValues["百万"]) + '百万';
+                            } else if (unit === "十万") {
+                                formattedValue = Math.round(rawValue / unitValues["十万"]) + '十万';
+                            } else if (unit === "万") {
+                                formattedValue = Math.round(rawValue / unitValues["万"]) + '万';
+                            } else if (unit === "千") {
+                                formattedValue = Math.round(rawValue / unitValues["千"]) + '千';
+                            } else {
+                                // 对于"元"单位，使用千分位符格式
+                                formattedValue = Math.round(rawValue).toLocaleString();
+                            }
+                        }
+                        
+                        // 返回格式化的标签文本（金额+百分比）
+                        return `${formattedValue}\n${percentage}%`;
+                    },
+                    color: '#fff',
+                    font: {
+                        weight: 'bold',
+                        size: 11
+                    },
+                    textAlign: 'center',
+                    anchor: 'end',
+                    align: 'end',
+                    offset: 10,
+                    borderRadius: 4,
+                    backgroundColor: function(context) {
+                        // 使用扇区的颜色作为标签背景色
+                        return context.dataset.backgroundColor[context.dataIndex];
+                    },
+                    padding: 4
                 }
             }
         }
