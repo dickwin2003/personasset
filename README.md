@@ -8,6 +8,7 @@
 [![GitHub Forks](https://img.shields.io/github/forks/nbzz/converasset?style=flat-square&logo=github&color=blue)](https://github.com/nbzz/converasset/network/members)
 [![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg?style=flat-square)](LICENSE)
 [![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-部署-4285F4?style=flat-square&logo=github&logoColor=white)](https://nbzz.github.io/converasset)
+[![Version](https://img.shields.io/badge/version-v1.0.0-green.svg?style=flat-square)](https://github.com/nbzz/converasset)
 </div>
 
 > 本项目以轻量，无后端数据库为目标
