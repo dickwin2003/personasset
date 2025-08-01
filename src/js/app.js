@@ -727,9 +727,82 @@ function renderTrendChart() {
                         }
                     }
                 },
-                // 禁用数据标签插件
+                // 为折线图配置数据标签插件
                 datalabels: {
-                    display: false
+                    // 只在数据点较少时显示标签（避免图表过于拥挤）
+                    display: function(context) {
+                        const chart = context.chart;
+                        const meta = chart.getDatasetMeta(context.datasetIndex);
+                        // 只在数据点数量较少时显示标签
+                        return meta.data.length <= 20;
+                    },
+                    formatter: function(value, context) {
+                        // 格式化金额（根据设置决定是否显示小数点）
+                        if (state.data.config.showDecimal) {
+                            // 根据单位进行格式化（带小数点）
+                            const unit = state.data.config.units.overview;
+                            if (unit === "亿") {
+                                return (value * unitValues[unit] / unitValues["亿"]).toFixed(2) + '亿';
+                            } else if (unit === "千万") {
+                                return (value * unitValues[unit] / unitValues["千万"]).toFixed(2) + '千万';
+                            } else if (unit === "百万") {
+                                return (value * unitValues[unit] / unitValues["百万"]).toFixed(2) + '百万';
+                            } else if (unit === "十万") {
+                                return (value * unitValues[unit] / unitValues["十万"]).toFixed(2) + '十万';
+                            } else if (unit === "万") {
+                                return (value * unitValues[unit] / unitValues["万"]).toFixed(2) + '万';
+                            } else if (unit === "千") {
+                                return (value * unitValues[unit] / unitValues["千"]).toFixed(2) + '千';
+                            } else {
+                                // 对于"元"单位，使用千分位符格式
+                                return value.toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                });
+                            }
+                        } else {
+                            // 不显示小数点，使用整数格式
+                            const unit = state.data.config.units.overview;
+                            if (unit === "亿") {
+                                return Math.round(value * unitValues[unit] / unitValues["亿"]) + '亿';
+                            } else if (unit === "千万") {
+                                return Math.round(value * unitValues[unit] / unitValues["千万"]) + '千万';
+                            } else if (unit === "百万") {
+                                return Math.round(value * unitValues[unit] / unitValues["百万"]) + '百万';
+                            } else if (unit === "十万") {
+                                return Math.round(value * unitValues[unit] / unitValues["十万"]) + '十万';
+                            } else if (unit === "万") {
+                                return Math.round(value * unitValues[unit] / unitValues["万"]) + '万';
+                            } else if (unit === "千") {
+                                return Math.round(value * unitValues[unit] / unitValues["千"]) + '千';
+                            } else {
+                                // 对于"元"单位，使用千分位符格式
+                                return Math.round(value).toLocaleString();
+                            }
+                        }
+                    },
+                    color: '#fff',
+                    font: {
+                        weight: 'bold',
+                        size: 10
+                    },
+                    textAlign: 'center',
+                    anchor: 'center',
+                    align: 'top',
+                    offset: 2,
+                    borderRadius: 3,
+                    backgroundColor: function(context) {
+                        // 使用数据系列的颜色作为标签背景色，但加深以提高可读性
+                        const color = context.dataset.borderColor;
+                        // 简单的颜色加深处理
+                        return color.replace('0.2)', '0.8)');
+                    },
+                    padding: {
+                        top: 3,
+                        bottom: 3,
+                        left: 5,
+                        right: 5
+                    }
                 }
             },
             scales: {
