@@ -1,7 +1,18 @@
+<div align="center">
+  
+# 📈 聚财 Converasset
 
-# 聚财 个人资产管理页 (Converasset)
+<strong>私人资产管理助手 —— 告别每天记零散流水账，资产数据自己掌握</strong>
 
-这是一个专为管理个人大型资产而设计的记录和跟踪系统，基于HTML、CSS和JavaScript构建，无需服务器支持，所有数据都存储在浏览器本地。适用于房产、股票、基金、大额存款、负债等资产的管理。
+[![GitHub Stars](https://img.shields.io/github/stars/nbzz/converasset?style=flat-square&logo=github&color=yellow)](https://github.com/nbzz/converasset/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/nbzz/converasset?style=flat-square&logo=github&color=blue)](https://github.com/nbzz/converasset/network/members)
+[![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg?style=flat-square)](LICENSE)
+[![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-部署-4285F4?style=flat-square&logo=github&logoColor=white)](https://nbzz.github.io/converasset)
+</div>
+
+> 本项目以轻量，无后端数据库为目标
+> 如果遇到问题请提issues
+
 
 ## 项目截图
 
@@ -12,41 +23,39 @@
 
 ## 功能特点
 
-- **大额资产记录**：专门针对房产、股票账户、基金账户等大额资产的聚合管理
-- **多维度资产分析**：提供趋势图、分布图、对比图等多种图表展示资产情况
-- **灵活筛选功能**：支持按账户筛选资产，可查看排除特定资产后的总值
-- **时间范围选择**：支持按不同时间范围查看资产变化趋势
-- **对数刻度支持**：支持对数刻度显示，更好地处理资产价值差异巨大的情况
-- **账户对比分析**：柱状图直观展示各账户资产对比情况
-- **多维度账户管理**：支持自定义各类资产账户，支持拖拽排序
-- **灵活单位设置**：支持元、万元、百万元等多种金额单位显示
-- **数据导入/导出**：支持JSON格式的数据导入和导出，便于备份和迁移
-- **历史数据编辑**：可查看和编辑历史资产记录
+- **资产金额记录**：专门针对房产、股票、银行、基金、互联网账户、负债等资产金额的聚合管理
+- **多维度资产分析**：提供趋势图、环形图、堆叠图等多种图表动态BI展示资产情况
+- **多维度账户管理**：速记页支持增删改、拖拽排序、自定义各类资产账户及其历史记录
+- **灵活单位设置**：支持元、千、万、十万、百万、千万、亿元等多种金额单位显示，为小微和庞大账户提供便利
+- **数据导入/导出**：支持以JSON、剪贴板数据类型的导入和导出，便于备份和迁移
 - **离线使用支持**：通过Service Worker支持离线访问
 - **响应式设计**：适配各种设备屏幕尺寸
 - **PWA支持**：可以安装为桌面应用，提供类似原生应用的体验
-- **开源许可证**：采用GPLv3许可证，确保代码的开放性和可追溯性
 
-## 安装和使用
+## 部署与开发
 
-### 直接使用
-1. 克隆或下载本项目到本地
+### github pages快速部署
+1. Github Fork
+2. 你的仓库 Setting —— Pages 
+3. Build and deployment ，Deploy from a branch
+4. main，root
+5. 我的Github Pages页面：[聚财 Converasset](https://nbzz.github.io/converasset/)
+
+### EDGEONE 快速部署
+1. Github Fork
+2. 登录[EDGEONE](https://edgeone.ai/products/pages)
+3. 一键部署 [![Deploy with EdgeOne Pages](https://cdnstatic.tencentcs.com/edgeone/pages/deploy.svg)](https://edgeone.ai/pages/new?from=github&template=https://github.com/nbzz/converasset&from=github)
+
+### 本地使用
+1. 克隆本项目到本地
 2. 直接在浏览器中打开 `index.html` 文件即可开始使用
 
 ### 本地开发
-1. 克隆项目到本地：
+克隆项目到本地，直接开发：
    ```bash
    git clone https://github.com/nbzz/converasset.git
-   ```
-2. 进入项目目录：
-   ```bash
    cd converasset
    ```
-3. 安装依赖（可选，用于开发）：
-   ```bash
-   npm install
-   ```
-4. 在浏览器中打开 `index.html` 或使用本地服务器运行
 
 ### 部署到服务器
 1. 将整个项目文件夹上传到服务器
@@ -55,22 +64,14 @@
 
 ## 使用方法
 
-1. 打开 `index.html` 文件即可开始使用
-2. 在"记录"页面输入各资产账户的当前价值
-3. 点击"保存"按钮保存数据到本地存储
-4. 切换到"总览"页面查看资产趋势图表和分布情况
-5. 使用账户筛选功能，点击账户按钮可排除该账户资产计算
-6. 使用时间范围和账户选择器查看特定条件下的资产变化
-7. 对于资产价值差异巨大的情况，可启用对数刻度显示
-8. 在"设置"页面可以：
-   - 自定义资产账户类型
-   - 设置金额显示单位
-   - 开启/关闭备注输入框
-   - 编辑历史记录
+1. 在"速记"页输入各资产账户数值（允许负值）
+2. 点击"保存"按钮保存数据到浏览器缓存，请定期导出备份，保护自己日积月累的资产数据
+3. 切换到"总览"页面查看资产趋势图表和分布情况
+4. "设置"页面有各类贴心功能
 
 ## 快捷键
 
-- `Ctrl+S` / `Cmd+S`：保存数据
+- `Ctrl+S` / `Cmd+S`：保存数据到缓存
 - `Enter`：在金额输入框间快速切换
 
 ## 技术栈
