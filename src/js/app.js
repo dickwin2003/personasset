@@ -20,6 +20,9 @@ const state = {
     chartInstances: {}
 };
 
+// 注册Chart.js插件
+Chart.register(ChartDataLabels);
+
 // 页面元素缓存
 const elements = {
     recordPage: null,
@@ -1129,6 +1132,44 @@ function renderBarChart() {
                                 });
                             return `${accountName}: ${displayValue} ${state.data.config.units.overview}`;
                         }
+                    }
+                },
+                // 只在柱状图上添加数据标签
+                datalabels: {
+                    anchor: 'end',
+                    align: 'top',
+                    formatter: function(value) {
+                        // 使用与设置中一致的单位
+                        const currentUnit = state.data.config.units.overview;
+                        const baseValue = unitValues[currentUnit];
+                        
+                        const yiValue = unitValues["亿"] / baseValue;
+                        const qianWanValue = unitValues["千万"] / baseValue;
+                        const baiWanValue = unitValues["百万"] / baseValue;
+                        const shiWanValue = unitValues["十万"] / baseValue;
+                        const wanValue = unitValues["万"] / baseValue;
+                        const qianValue = unitValues["千"] / baseValue;
+                        
+                        if (Math.abs(value) >= yiValue) {
+                            return (value / yiValue).toFixed(1) + '亿';
+                        } else if (Math.abs(value) >= qianWanValue) {
+                            return (value / qianWanValue).toFixed(1) + '千万';
+                        } else if (Math.abs(value) >= baiWanValue) {
+                            return (value / baiWanValue).toFixed(1) + '百万';
+                        } else if (Math.abs(value) >= shiWanValue) {
+                            return (value / shiWanValue).toFixed(1) + '十万';
+                        } else if (Math.abs(value) >= wanValue) {
+                            return (value / wanValue).toFixed(1) + '万';
+                        } else if (Math.abs(value) >= qianValue) {
+                            return (value / qianValue).toFixed(1) + '千';
+                        }
+                        // 对于较小的值，保留两位小数
+                        return value.toFixed(2);
+                    },
+                    color: '#374151', // 文字颜色
+                    font: {
+                        weight: 'bold',
+                        size: 12
                     }
                 }
             },
