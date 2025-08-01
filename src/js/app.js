@@ -680,7 +680,27 @@ function renderTrendChart() {
         pointRadius: dates.length > 30 ? 0 : 3,
         pointHoverRadius: 5,
         // 将合计线置于最底层，避免遮挡其他线条
-        order: 1
+        order: 1,
+        // 为合计线设置特殊的数据标签配置
+        datalabels: {
+            color: '#000000', // 黑色字体
+            font: {
+                weight: 'bold',
+                size: 10
+            },
+            textAlign: 'center',
+            anchor: 'center',
+            align: 'top',
+            offset: 2,
+            borderRadius: 2,
+            backgroundColor: null, // 不使用背景色
+            padding: {
+                top: 2,
+                bottom: 2,
+                left: 3,
+                right: 3
+            }
+        }
     });
     
     // 如果已有图表实例，先销毁
