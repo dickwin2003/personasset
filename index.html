@@ -82,8 +82,14 @@
                         <button id="importBtn" class="action-button import-btn px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition flex items-center">
                             <i class="fas fa-file-import mr-2"></i>导入
                         </button>
+                        <button id="importClipboardBtn" class="action-button import-clipboard-btn px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition flex items-center">
+                            <i class="fas fa-clipboard mr-2"></i>粘贴导入
+                        </button>
                         <button id="exportBtn" class="action-button export-btn px-5 py-2.5 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg transition flex items-center">
                             <i class="fas fa-download mr-2"></i>导出
+                        </button>
+                        <button id="exportClipboardBtn" class="action-button export-clipboard-btn px-5 py-2.5 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg transition flex items-center">
+                            <i class="fas fa-copy mr-2"></i>复制数据
                         </button>
                         <button id="saveBtn" class="action-button save-btn px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition flex items-center">
                             <i class="fas fa-save mr-2"></i>保存
@@ -284,6 +290,7 @@
 
     <!-- 引入外部JavaScript文件 -->
     <script src="src/js/app.js"></script>
+    <script src="src/js/clipboard.js"></script>
     
     <!-- 注册Service Worker以支持PWA -->
     <script>

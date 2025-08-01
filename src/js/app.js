@@ -77,6 +77,8 @@ function setupEventListeners() {
     document.getElementById('saveBtn').addEventListener('click', saveData);
     document.getElementById('exportBtn').addEventListener('click', exportData);
     document.getElementById('importBtn').addEventListener('click', importData);
+    document.getElementById('exportClipboardBtn').addEventListener('click', exportToClipboard);
+    document.getElementById('importClipboardBtn').addEventListener('click', importFromClipboard);
     document.getElementById('populateLastDataBtn').addEventListener('click', populateLastData);
     
     // 设置页按钮
