@@ -38,6 +38,15 @@ function importFromClipboard() {
     if (!navigator.clipboard) {
         showToast('您的浏览器不支持剪贴板API，请尝试更新浏览器', 'error');
         console.error('Clipboard API not supported');
+        showManualImportDialog();
+        return;
+    }
+    
+    // 检查是否在安全上下文（HTTPS或localhost）
+    if (!window.isSecureContext) {
+        showToast('剪贴板访问需要安全连接（HTTPS）', 'error');
+        console.warn('Clipboard access requires secure context');
+        showManualImportDialog();
         return;
     }
     
@@ -78,8 +87,15 @@ function importFromClipboard() {
             }
         })
         .catch(err => {
-            showToast('粘贴失败: ' + err.message, 'error');
             console.error('Failed to read from clipboard:', err);
+            
+            // 检查是否是权限错误
+            if (err.name === 'NotAllowedError' || err.name === 'SecurityError') {
+                showToast('无法访问剪贴板，请手动粘贴数据', 'error');
+                showManualImportDialog();
+            } else {
+                showToast('粘贴失败: ' + err.message, 'error');
+            }
         });
 }
 
@@ -143,4 +159,73 @@ function showDataForManualCopy(data) {
     `;
     
     document.body.appendChild(container);
+}
+
+// 显示手动导入对话框
+function showManualImportDialog() {
+    const container = document.createElement('div');
+    container.style.position = 'fixed';
+    container.style.top = '50%';
+    container.style.left = '50%';
+    container.style.transform = 'translate(-50%, -50%)';
+    container.style.backgroundColor = 'white';
+    container.style.padding = '20px';
+    container.style.border = '1px solid #ccc';
+    container.style.borderRadius = '5px';
+    container.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+    container.style.zIndex = '10000';
+    container.style.maxWidth = '80%';
+    container.style.maxHeight = '80%';
+    container.style.overflow = 'auto';
+    
+    container.innerHTML = `
+        <h3 style="margin-top: 0;">手动导入数据</h3>
+        <p>请将数据粘贴到下方文本框中：</p>
+        <textarea id="manualImportData" style="width: 100%; height: 200px; font-family: monospace;" placeholder="在此粘贴您的资产数据（JSON格式）"></textarea>
+        <div style="margin-top: 10px; text-align: right;">
+            <button onclick="document.getElementById('manualImportData').parentElement.parentElement.remove()" style="padding: 5px 10px; background: #6c757d; color: white; border: none; border-radius: 3px; cursor: pointer; margin-right: 5px;">取消</button>
+            <button id="manualImportBtn" style="padding: 5px 10px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;">导入</button>
+        </div>
+    `;
+    
+    document.body.appendChild(container);
+    
+    // 添加导入按钮事件监听器
+    document.getElementById('manualImportBtn').addEventListener('click', function() {
+        const text = document.getElementById('manualImportData').value;
+        if (!text || text.trim() === '') {
+            showToast('请输入数据', 'error');
+            return;
+        }
+        
+        try {
+            // 解析JSON数据
+            const data = JSON.parse(text);
+            
+            // 验证数据格式
+            if (validateAssetData(data)) {
+                // 更新状态数据
+                state.data = data;
+                
+                // 保存到localStorage
+                localStorage.setItem('assetTrackerData', JSON.stringify(data));
+                
+                // 重新渲染页面
+                renderRecordPage();
+                renderSettingsPage();
+                
+                // 显示成功消息
+                showToast('数据导入成功');
+                console.log('Data imported manually successfully');
+                
+                // 关闭对话框
+                container.remove();
+            } else {
+                throw new Error('无效的数据格式');
+            }
+        } catch (error) {
+            showToast('导入失败：' + error.message, 'error');
+            console.error('Failed to import data manually:', error);
+        }
+    });
 }
