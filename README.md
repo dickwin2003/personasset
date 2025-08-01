@@ -11,17 +11,18 @@
 </div>
 
 > 本项目以轻量，无后端数据库为目标
-> 如果遇到问题请提issues
+> 
+> 如有任何问题或建议，欢迎关注公众号：折腾结果发私信 或提交issues。
 
-
-## 项目截图
+## 🖼️ 项目截图
 
 <div style="display: flex; justify-content: space-around; flex-wrap: wrap;">
-  <img src="docs/screenshots/screenshot1.png" alt="记录页面" style="width: 45%; margin-bottom: 10px;">
-  <img src="docs/screenshots/screenshot2.png" alt="总览页面" style="width: 45%; margin-bottom: 10px;">
+  <img src="https://github.com/user-attachments/assets/72252a36-c3d0-46b1-a965-06aa08ee9b81" alt="记录页面" style="width: 29%; margin-bottom: 10px;">
+  <img src="https://github.com/user-attachments/assets/86d3c87f-e9bb-494b-bdbb-7d5ba1d392bc" alt="总览页面" style="width: 35%; margin-bottom: 10px;">
+  <img src="https://github.com/user-attachments/assets/27ce6f32-4cf5-4789-b154-9b6bf83ed3d4" alt="设置页面" style="width: 29%; margin-bottom: 10px;">
 </div>
 
-## 功能特点
+## ✨ 功能特点
 
 - **资产金额记录**：专门针对房产、股票、银行、基金、互联网账户、负债等资产金额的聚合管理
 - **多维度资产分析**：提供趋势图、环形图、堆叠图等多种图表动态BI展示资产情况
@@ -32,7 +33,7 @@
 - **响应式设计**：适配各种设备屏幕尺寸
 - **PWA支持**：可以安装为桌面应用，提供类似原生应用的体验
 
-## 部署与开发
+## 💻 部署与开发
 
 ### github pages快速部署
 1. Github Fork
@@ -62,19 +63,24 @@
 2. 配置Web服务器指向项目根目录
 3. 确保服务器支持静态文件服务
 
-## 使用方法
+## 🙋‍♂️ 使用方法
 
 1. 在"速记"页输入各资产账户数值（允许负值）
 2. 点击"保存"按钮保存数据到浏览器缓存，请定期导出备份，保护自己日积月累的资产数据
 3. 切换到"总览"页面查看资产趋势图表和分布情况
 4. "设置"页面有各类贴心功能
+   
+## 💽 数据存储
 
-## 快捷键
+所有数据都存储在浏览器的localStorage中，不会上传到任何服务器。导出的数据为JSON文件或剪贴板中，请用户自行备份或在不同设备间同步。
+> 我用微信输入法的多端剪贴板在PC和手机做同步
+
+## ⌨ 快捷键
 
 - `Ctrl+S` / `Cmd+S`：保存数据到缓存
 - `Enter`：在金额输入框间快速切换
 
-## 技术栈
+## 📲 技术栈
 
 - HTML5
 - Tailwind CSS
@@ -84,11 +90,7 @@
 - Service Worker（PWA支持）
 - Git（版本控制）
 
-## 数据存储
-
-所有数据都存储在浏览器的localStorage中，不会上传到任何服务器。导出的数据为JSON格式，请用户自行备份或在不同设备间同步。
-
-## 版本控制
+## 📄 版本控制
 
 该项目使用Git进行版本控制。您可以使用以下命令查看历史变更：
 
@@ -96,15 +98,7 @@
 git log --oneline
 ```
 
-## 适用场景
-
-- 房产投资管理
-- 股票基金投资跟踪
-- 大额银行存款管理
-- 综合资产配置分析
-- 家庭财富变化趋势监控
-
-## 开发计划
+## ✈ 开发计划
 
 - [x] 基础资产记录功能
 - [x] 资产趋势可视化
@@ -119,10 +113,9 @@ git log --oneline
 - [x] 设置页删除账户旁边多一个隐藏显示账户的开关，对应总览页
 - [x] 设置页需要有账户编辑名称的功能
 - [x] 资产备注在总览页显示
-- [ ] 资产异动分析
-- [ ] 数据分析报告
+- [ ] 资产（年化）收益率分析
 
-## 贡献
+## ❤️ 贡献
 
 欢迎提交Issue和Pull Request来帮助改进这个项目。在提交代码前，请确保：
 
@@ -130,10 +123,18 @@ git log --oneline
 2. 添加适当的注释
 3. 测试您的更改
 
-## 许可证
+## 🔑 许可证
 
 本项目采用GNU通用公共许可证第3版（GPLv3），详情请见 [LICENSE](LICENSE) 文件。
 
-## 联系方式
+## 📞 交流与赞助
+> 收到的赞助是我开发的动力
 
-如有任何问题或建议，请通过GitHub Issues与我们联系。
+<div align="center">
+如有任何问题或建议，欢迎关注下方公众号发私信或提交issues。
+
+|公众号关注 |微信赞助 | 支付宝赞助 |
+|:---:|:---:|:---:| 
+| <img width="270" alt="image" src="https://github.com/user-attachments/assets/9b6fd867-4cfa-4da3-9f9f-56867660d685" title="公众号 折腾结果"/> | <img width="100" alt="image" src="https://github.com/user-attachments/assets/0bdfa9f1-9853-4811-a8db-4b767b45bbc6" title="微信支付"/> |<img width="100" alt="image" src="https://github.com/user-attachments/assets/6de777d6-d4d2-4fa5-90a6-6465b6efdd22" title="支付宝"/> |
+
+</div>
