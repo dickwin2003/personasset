@@ -7,6 +7,7 @@ const urlsToCache = [
   '/src/css/tailwind.min.css',
   '/src/css/style.css',
   '/src/js/app.js',
+  '/src/js/clipboard.js',
   '/assets/fontawesome/css/all.min.css',
   '/assets/fontawesome/webfonts/fa-brands-400.woff2',
   '/assets/fontawesome/webfonts/fa-regular-400.woff2',
@@ -40,7 +41,7 @@ self.addEventListener('fetch', event => {
         .catch(() => {
           return caches.open(CACHE_NAME)
             .then(cache => {
-              return cache.match('/offline.html');
+              return cache.match('offline.html');
             });
         })
     );
