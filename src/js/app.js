@@ -1030,10 +1030,10 @@ function renderPieChart() {
                 },
                 // 为饼图配置数据标签插件
                 datalabels: {
-                    // 只对第二个数据集（外环/负资产）显示标签
+                    // 只对第一个数据集（外环/正资产）显示标签
                     display: function(context) {
-                        // 只在第二个数据集（外环）显示标签
-                        if (context.datasetIndex !== 1) {
+                        // 只在第一个数据集（外环）显示标签
+                        if (context.datasetIndex !== 0) {
                             return false;
                         }
                         
