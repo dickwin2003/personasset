@@ -790,7 +790,7 @@ function renderTrendChart() {
                     anchor: 'center',
                     align: 'top',
                     offset: 2,
-                    borderRadius: 3,
+                    borderRadius: 2,
                     backgroundColor: function(context) {
                         // 使用数据系列的颜色作为标签背景色，但加深以提高可读性
                         const color = context.dataset.borderColor;
@@ -798,10 +798,10 @@ function renderTrendChart() {
                         return color.replace('0.2)', '0.8)');
                     },
                     padding: {
-                        top: 3,
-                        bottom: 3,
-                        left: 5,
-                        right: 5
+                        top: 2,
+                        bottom: 2,
+                        left: 3,
+                        right: 3
                     }
                 }
             },
