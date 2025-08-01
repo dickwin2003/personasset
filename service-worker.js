@@ -34,14 +34,14 @@ self.addEventListener('install', event => {
 
 // 获取事件 - 拦截网络请求并返回缓存内容
 self.addEventListener('fetch', event => {
-  // 对于导航请求，提供离线页面
+  // 对于导航请求，优先返回缓存的index.html
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
         .catch(() => {
           return caches.open(CACHE_NAME)
             .then(cache => {
-              return cache.match('offline.html');
+              return cache.match('/index.html');
             });
         })
     );
