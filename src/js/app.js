@@ -1152,25 +1152,46 @@ function renderBarChart() {
                         const unitValue = unitValues[unit];
                         const actualValue = value * unitValue;
                         
-                        // 根据单位进行格式化
-                        if (unit === "亿") {
-                            return (actualValue / unitValues["亿"]).toFixed(2) + '亿';
-                        } else if (unit === "千万") {
-                            return (actualValue / unitValues["千万"]).toFixed(2) + '千万';
-                        } else if (unit === "百万") {
-                            return (actualValue / unitValues["百万"]).toFixed(2) + '百万';
-                        } else if (unit === "十万") {
-                            return (actualValue / unitValues["十万"]).toFixed(2) + '十万';
-                        } else if (unit === "万") {
-                            return (actualValue / unitValues["万"]).toFixed(2) + '万';
-                        } else if (unit === "千") {
-                            return (actualValue / unitValues["千"]).toFixed(2) + '千';
+                        // 根据是否显示小数点来格式化数值
+                        if (state.data.config.showDecimal) {
+                            // 根据单位进行格式化（带小数点）
+                            if (unit === "亿") {
+                                return (actualValue / unitValues["亿"]).toFixed(2) + '亿';
+                            } else if (unit === "千万") {
+                                return (actualValue / unitValues["千万"]).toFixed(2) + '千万';
+                            } else if (unit === "百万") {
+                                return (actualValue / unitValues["百万"]).toFixed(2) + '百万';
+                            } else if (unit === "十万") {
+                                return (actualValue / unitValues["十万"]).toFixed(2) + '十万';
+                            } else if (unit === "万") {
+                                return (actualValue / unitValues["万"]).toFixed(2) + '万';
+                            } else if (unit === "千") {
+                                return (actualValue / unitValues["千"]).toFixed(2) + '千';
+                            } else {
+                                // 对于"元"单位，使用千分位符格式
+                                return actualValue.toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                });
+                            }
                         } else {
-                            // 对于"元"单位，使用千分位符格式
-                            return actualValue.toLocaleString(undefined, {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
-                            });
+                            // 不显示小数点，使用整数格式
+                            if (unit === "亿") {
+                                return Math.round(actualValue / unitValues["亿"]) + '亿';
+                            } else if (unit === "千万") {
+                                return Math.round(actualValue / unitValues["千万"]) + '千万';
+                            } else if (unit === "百万") {
+                                return Math.round(actualValue / unitValues["百万"]) + '百万';
+                            } else if (unit === "十万") {
+                                return Math.round(actualValue / unitValues["十万"]) + '十万';
+                            } else if (unit === "万") {
+                                return Math.round(actualValue / unitValues["万"]) + '万';
+                            } else if (unit === "千") {
+                                return Math.round(actualValue / unitValues["千"]) + '千';
+                            } else {
+                                // 对于"元"单位，使用千分位符格式
+                                return Math.round(actualValue).toLocaleString();
+                            }
                         }
                     },
                     color: '#374151', // 文字颜色
