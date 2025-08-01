@@ -1111,15 +1111,23 @@ function renderPieChart() {
                         size: 11
                     },
                     textAlign: 'center',
-                    anchor: 'end',
-                    align: 'end',
-                    offset: 10,
+                    // 直接将标签放在色块上
+                    anchor: 'center',
+                    align: 'center',
+                    offset: 0,
                     borderRadius: 4,
                     backgroundColor: function(context) {
-                        // 使用扇区的颜色作为标签背景色
-                        return context.dataset.backgroundColor[context.dataIndex];
+                        // 使用扇区的颜色作为标签背景色，但稍微加深以提高可读性
+                        const color = context.dataset.backgroundColor[context.dataIndex];
+                        // 简单的颜色加深处理
+                        return color.replace('0.2)', '0.8)');
                     },
-                    padding: 4
+                    padding: {
+                        top: 4,
+                        bottom: 4,
+                        left: 6,
+                        right: 6
+                    }
                 }
             }
         }
