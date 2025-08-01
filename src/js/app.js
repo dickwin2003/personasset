@@ -77,8 +77,31 @@ function setupEventListeners() {
     document.getElementById('saveBtn').addEventListener('click', saveData);
     document.getElementById('exportBtn').addEventListener('click', exportData);
     document.getElementById('importBtn').addEventListener('click', importData);
-    document.getElementById('exportClipboardBtn').addEventListener('click', exportToClipboard);
-    document.getElementById('importClipboardBtn').addEventListener('click', importFromClipboard);
+    
+    // 添加调试信息
+    const exportClipboardBtn = document.getElementById('exportClipboardBtn');
+    const importClipboardBtn = document.getElementById('importClipboardBtn');
+    
+    if (exportClipboardBtn) {
+        console.log('Export clipboard button found');
+        exportClipboardBtn.addEventListener('click', function() {
+            console.log('Export clipboard button clicked');
+            exportToClipboard();
+        });
+    } else {
+        console.error('Export clipboard button not found');
+    }
+    
+    if (importClipboardBtn) {
+        console.log('Import clipboard button found');
+        importClipboardBtn.addEventListener('click', function() {
+            console.log('Import clipboard button clicked');
+            importFromClipboard();
+        });
+    } else {
+        console.error('Import clipboard button not found');
+    }
+    
     document.getElementById('populateLastDataBtn').addEventListener('click', populateLastData);
     
     // 设置页按钮
