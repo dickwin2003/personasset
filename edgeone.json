@@ -26,7 +26,16 @@
       ]
     },
     {
-      "source": "/src/*",
+      "source": "/src/js/*.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "max-age=86400"
+        }
+      ]
+    },
+    {
+      "source": "/src/css/*.css",
       "headers": [
         {
           "key": "Cache-Control",
@@ -34,5 +43,6 @@
         }
       ]
     }
-  ]
+  ],
+  "buildCommand": ""
 }
