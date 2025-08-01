@@ -20,7 +20,7 @@ const state = {
     chartInstances: {}
 };
 
-// 注册Chart.js插件
+// 注册Chart.js插件，但只在需要的图表中启用
 Chart.register(ChartDataLabels);
 
 // 页面元素缓存
@@ -726,6 +726,10 @@ function renderTrendChart() {
                             })} ${state.data.config.units.overview} (${percentage}%)`;
                         }
                     }
+                },
+                // 禁用数据标签插件
+                datalabels: {
+                    display: false
                 }
             },
             scales: {
@@ -1023,6 +1027,10 @@ function renderPieChart() {
                             return `${accountName}: ${displayValue} ${state.data.config.units.overview} (${percentage}%)`;
                         }
                     }
+                },
+                // 禁用数据标签插件
+                datalabels: {
+                    display: false
                 }
             }
         }
@@ -1139,32 +1147,31 @@ function renderBarChart() {
                     anchor: 'end',
                     align: 'top',
                     formatter: function(value) {
-                        // 使用与设置中一致的单位
-                        const currentUnit = state.data.config.units.overview;
-                        const baseValue = unitValues[currentUnit];
+                        // 确保使用与设置中一致的单位
+                        const unit = state.data.config.units.overview;
+                        const unitValue = unitValues[unit];
+                        const actualValue = value * unitValue;
                         
-                        const yiValue = unitValues["亿"] / baseValue;
-                        const qianWanValue = unitValues["千万"] / baseValue;
-                        const baiWanValue = unitValues["百万"] / baseValue;
-                        const shiWanValue = unitValues["十万"] / baseValue;
-                        const wanValue = unitValues["万"] / baseValue;
-                        const qianValue = unitValues["千"] / baseValue;
-                        
-                        if (Math.abs(value) >= yiValue) {
-                            return (value / yiValue).toFixed(1) + '亿';
-                        } else if (Math.abs(value) >= qianWanValue) {
-                            return (value / qianWanValue).toFixed(1) + '千万';
-                        } else if (Math.abs(value) >= baiWanValue) {
-                            return (value / baiWanValue).toFixed(1) + '百万';
-                        } else if (Math.abs(value) >= shiWanValue) {
-                            return (value / shiWanValue).toFixed(1) + '十万';
-                        } else if (Math.abs(value) >= wanValue) {
-                            return (value / wanValue).toFixed(1) + '万';
-                        } else if (Math.abs(value) >= qianValue) {
-                            return (value / qianValue).toFixed(1) + '千';
+                        // 根据单位进行格式化
+                        if (unit === "亿") {
+                            return (actualValue / unitValues["亿"]).toFixed(2) + '亿';
+                        } else if (unit === "千万") {
+                            return (actualValue / unitValues["千万"]).toFixed(2) + '千万';
+                        } else if (unit === "百万") {
+                            return (actualValue / unitValues["百万"]).toFixed(2) + '百万';
+                        } else if (unit === "十万") {
+                            return (actualValue / unitValues["十万"]).toFixed(2) + '十万';
+                        } else if (unit === "万") {
+                            return (actualValue / unitValues["万"]).toFixed(2) + '万';
+                        } else if (unit === "千") {
+                            return (actualValue / unitValues["千"]).toFixed(2) + '千';
+                        } else {
+                            // 对于"元"单位，使用千分位符格式
+                            return actualValue.toLocaleString(undefined, {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
                         }
-                        // 对于较小的值，保留两位小数
-                        return value.toFixed(2);
                     },
                     color: '#374151', // 文字颜色
                     font: {
@@ -2064,6 +2071,10 @@ function renderStackedAreaChart() {
                             })} ${state.data.config.units.overview}`;
                         }
                     }
+                },
+                // 禁用数据标签插件
+                datalabels: {
+                    display: false
                 }
             },
             scales: {
