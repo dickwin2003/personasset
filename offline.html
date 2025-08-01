@@ -22,6 +22,25 @@
             border-radius: 0.5rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+        .explanation {
+            background-color: #eff6ff;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin-top: 1rem;
+            text-align: left;
+        }
+        .explanation h3 {
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 0.5rem;
+        }
+        .explanation ul {
+            padding-left: 1.5rem;
+            margin: 0.5rem 0;
+        }
+        .explanation li {
+            margin-bottom: 0.25rem;
+        }
     </style>
 </head>
 <body>
@@ -31,6 +50,20 @@
         <div class="flex justify-center">
             <i class="fas fa-wifi-slash text-5xl text-gray-400"></i>
         </div>
+        
+        <div class="explanation">
+            <h3>为什么会出现这个页面？</h3>
+            <ul class="text-sm text-gray-700">
+                <li>• 这是您第一次访问此页面且无网络连接</li>
+                <li>• 浏览器缓存中没有此页面的离线版本</li>
+                <li>• 网络连接中断且无法加载页面资源</li>
+            </ul>
+            <p class="text-sm text-gray-700 mt-2">
+                <strong>提示：</strong>如果您之前访问过此应用并建立了缓存，
+                则可以在离线状态下正常使用应用功能。
+            </p>
+        </div>
+        
         <button onclick="window.location.reload()" class="mt-6 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
             刷新页面
         </button>
