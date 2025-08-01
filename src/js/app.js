@@ -1112,7 +1112,7 @@ function renderPieChart() {
                     },
                     textAlign: 'center',
                     // 直接将标签放在色块上
-                    anchor: 'center',
+                    anchor: 'end',
                     align: 'center',
                     offset: 0,
                     borderRadius: 4,
