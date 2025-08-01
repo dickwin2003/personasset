@@ -1114,7 +1114,7 @@ function renderPieChart() {
                     // 直接将标签放在色块上
                     anchor: 'end',
                     align: 'center',
-                    offset: 0,
+                    offset: 1,
                     borderRadius: 4,
                     backgroundColor: function(context) {
                         // 使用扇区的颜色作为标签背景色，但稍微加深以提高可读性
