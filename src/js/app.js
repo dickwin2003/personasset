@@ -2283,9 +2283,106 @@ function renderStackedAreaChart() {
                         }
                     }
                 },
-                // 禁用数据标签插件
+                // 为堆叠图配置数据标签插件
                 datalabels: {
-                    display: false
+                    // 根据数据点数量动态调整标签显示策略
+                    display: function(context) {
+                        const chart = context.chart;
+                        const meta = chart.getDatasetMeta(context.datasetIndex);
+                        
+                        // 获取当前数据集的所有数据点
+                        const dataPoints = meta.data.length;
+                        
+                        // 数据点很少时全部显示，较多时只显示关键点
+                        if (dataPoints <= 15) {
+                            // 数据点很少，全部显示
+                            return true;
+                        } else {
+                            // 数据点较多时，只在起始点、结束点和值较大的点显示
+                            const data = context.dataset.data;
+                            const currentIndex = context.dataIndex;
+                            const currentValue = data[currentIndex];
+                            
+                            // 起始点和结束点总是显示
+                            if (currentIndex === 0 || currentIndex === data.length - 1) {
+                                return true;
+                            }
+                            
+                            // 只在值大于平均值的点显示标签
+                            const sum = data.reduce((acc, val) => acc + (val || 0), 0);
+                            const average = sum / data.length;
+                            
+                            // 在值大于平均值的点显示标签
+                            return currentValue > average;
+                        }
+                    },
+                    formatter: function(value, context) {
+                        // 格式化金额（根据设置决定是否显示小数点）
+                        if (state.data.config.showDecimal) {
+                            // 根据单位进行格式化（带小数点）
+                            const unit = state.data.config.units.overview;
+                            if (unit === "亿") {
+                                return (value * unitValues[unit] / unitValues["亿"]).toFixed(2) + '亿';
+                            } else if (unit === "千万") {
+                                return (value * unitValues[unit] / unitValues["千万"]).toFixed(2) + '千万';
+                            } else if (unit === "百万") {
+                                return (value * unitValues[unit] / unitValues["百万"]).toFixed(2) + '百万';
+                            } else if (unit === "十万") {
+                                return (value * unitValues[unit] / unitValues["十万"]).toFixed(2) + '十万';
+                            } else if (unit === "万") {
+                                return (value * unitValues[unit] / unitValues["万"]).toFixed(2) + '万';
+                            } else if (unit === "千") {
+                                return (value * unitValues[unit] / unitValues["千"]).toFixed(2) + '千';
+                            } else {
+                                // 对于"元"单位，使用千分位符格式
+                                return value.toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                });
+                            }
+                        } else {
+                            // 不显示小数点，使用整数格式
+                            const unit = state.data.config.units.overview;
+                            if (unit === "亿") {
+                                return Math.round(value * unitValues[unit] / unitValues["亿"]) + '亿';
+                            } else if (unit === "千万") {
+                                return Math.round(value * unitValues[unit] / unitValues["千万"]) + '千万';
+                            } else if (unit === "百万") {
+                                return Math.round(value * unitValues[unit] / unitValues["百万"]) + '百万';
+                            } else if (unit === "十万") {
+                                return Math.round(value * unitValues[unit] / unitValues["十万"]) + '十万';
+                            } else if (unit === "万") {
+                                return Math.round(value * unitValues[unit] / unitValues["万"]) + '万';
+                            } else if (unit === "千") {
+                                return Math.round(value * unitValues[unit] / unitValues["千"]) + '千';
+                            } else {
+                                // 对于"元"单位，使用千分位符格式
+                                return Math.round(value).toLocaleString();
+                            }
+                        }
+                    },
+                    color: '#fff',
+                    font: {
+                        weight: 'bold',
+                        size: 9
+                    },
+                    textAlign: 'center',
+                    anchor: 'center',
+                    align: 'center',
+                    offset: 0,
+                    borderRadius: 1,
+                    backgroundColor: function(context) {
+                        // 使用数据系列的颜色作为标签背景色，但加深以提高可读性
+                        const color = context.dataset.borderColor;
+                        // 简单的颜色加深处理
+                        return color.replace('0.2)', '0.8)');
+                    },
+                    padding: {
+                        top: 1,
+                        bottom: 1,
+                        left: 2,
+                        right: 2
+                    }
                 }
             },
             scales: {
