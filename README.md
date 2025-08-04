@@ -18,9 +18,11 @@
 ## 🖼️ 项目截图
 
 <div style="display: flex; justify-content: space-around; flex-wrap: wrap;">
-  <img src="https://github.com/user-attachments/assets/72252a36-c3d0-46b1-a965-06aa08ee9b81" alt="记录页面" style="width: 29%; margin-bottom: 10px;">
-  <img src="https://github.com/user-attachments/assets/86d3c87f-e9bb-494b-bdbb-7d5ba1d392bc" alt="总览页面" style="width: 35%; margin-bottom: 10px;">
-  <img src="https://github.com/user-attachments/assets/27ce6f32-4cf5-4789-b154-9b6bf83ed3d4" alt="设置页面" style="width: 29%; margin-bottom: 10px;">
+  <img src="https://github.com/user-attachments/assets/17854fac-78c5-40d0-964a-56752e89025c" alt="总览页面" style="width: 30%; margin-bottom: 10px;">
+
+  <img src="https://github.com/user-attachments/assets/847f0039-1bbb-45ed-9f1a-3d5265630302" alt="记录页面" style="width: 30%; margin-bottom: 10px;">
+  
+  <img src="https://github.com/user-attachments/assets/88a78f9c-2e72-4977-9701-e2f84cc329bd" alt="设置页面" style="width: 30%; margin-bottom: 10px;">
 </div>
 
 ## ✨ 功能特点
