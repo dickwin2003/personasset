@@ -1,0 +1,11 @@
+name = "personasset"
+main = "src/worker.js"
+compatibility_date = "2024-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "personasset"
+database_id = "cc1bb6a8-1ac3-4d25-ba12-19ba0e384b7e"
+
+[vars]
+ENVIRONMENT = "production"

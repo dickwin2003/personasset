@@ -1,6 +1,6 @@
 # 个人投资组合系统
 
-一个基于Cloudflare Workers和MySQL数据库的个人资产管理系统，支持资产追踪、负债管理、现金流分析等功能。
+一个基于Cloudflare Workers和D1数据库的个人资产管理系统，支持资产追踪、负债管理、现金流分析等功能。
 
 ## ✨ 功能特性
 
@@ -36,7 +36,7 @@
 
 ### 后端
 - **Cloudflare Workers**：无服务器计算平台
-- **MySQL数据库**：可靠的关系型数据库
+- **Cloudflare D1数据库**：基于SQLite的全球分布式数据库
 - **itty-router**：轻量级路由库
 
 ### 前端
@@ -57,39 +57,30 @@ npm install -g wrangler
 wrangler login
 ```
 
-### 2. 数据库配置
+### 2. D1数据库配置
 
-确保MySQL数据库已配置：
-- 主机：139.196.78.195
-- 端口：3306
-- 用户：ppg
-- 密码：dickwin2003@gmail.com
-- 数据库：personasset
+本项目使用Cloudflare D1数据库，无需额外配置。D1是Cloudflare提供的全球分布式 SQLite 数据库。
 
 ### 3. 初始化数据库
 
-```bash
-# 安装依赖（如果需要本地初始化数据库）
-npm install mysql2
+数据库表结构和测试数据已在部署过程中自动创建。如需重新初始化：
 
-# 运行数据库初始化脚本
-node init-mysql-database.js
-```
-
-或者手动执行SQL脚本：
 ```bash
-mysql -h 139.196.78.195 -u ppg -p personasset < mysql-schema.sql
+# 重建数据库结构（无外键约束）
+wrangler d1 execute personasset --file=d1-schema-no-fk.sql
+
+# 导入测试数据
+wrangler d1 execute personasset --file=test-data.sql
 ```
 
 ### 4. 部署到Cloudflare Workers
 
 ```bash
-# 使用部署脚本
-chmod +x deploy.sh
-./deploy.sh
+# 使用npm脚本部署
+npm run deploy
 
 # 或者手动部署
-wrangler deploy
+npx wrangler deploy --compatibility-date=2024-01-01
 ```
 
 ## 📁 项目结构
@@ -104,10 +95,10 @@ personasset/
 │   └── css/
 │       └── style.css         # 自定义样式
 ├── index.html                 # 前端主页面
-├── mysql-schema.sql          # MySQL数据库架构
-├── init-mysql-database.js    # 数据库初始化脚本
+├── d1-schema-no-fk.sql       # D1数据库架构（无外键约束）
+├── test-data.sql             # 测试数据
 ├── wrangler.toml             # Cloudflare Workers配置
-├── deploy.sh                 # 部署脚本
+├── package.json              # 项目依赖和脚本
 └── README.md                 # 项目文档
 ```
 
@@ -119,14 +110,20 @@ name = "personasset"
 main = "src/worker.js"
 compatibility_date = "2024-01-01"
 
+[[d1_databases]]
+binding = "DB"
+database_name = "personasset"
+database_id = "your-d1-database-id"
+
 [vars]
 ENVIRONMENT = "production"
-MYSQL_HOST = "139.196.78.195"
-MYSQL_PORT = "3306"
-MYSQL_USER = "ppg"
-MYSQL_PASSWORD = "dickwin2003@gmail.com"
-MYSQL_DATABASE = "personasset"
 ```
+
+### D1数据库特性
+- **全球分布**：数据在全球CDN边缘节点复制
+- **无服务器**：无需管理数据库服务器
+- **自动缩放**：根据请求量自动调整性能
+- **SQLite兼容**：支持标准SQL语法
 
 ## 📊 数据库架构
 
@@ -140,7 +137,7 @@ MYSQL_DATABASE = "personasset"
 - **asset_value_history** - 资产价值历史表
 - **investment_returns** - 投资收益表
 
-### 关系图
+### 数据关联
 ```
 users (1) -----> (n) asset_types
 users (1) -----> (n) assets
@@ -149,6 +146,11 @@ users (1) -----> (n) cash_flows
 assets (1) -----> (n) asset_value_history
 assets (1) -----> (n) investment_returns
 ```
+
+### 特殊设计
+- **无外键约束**：为了提高性能和简化操作，所有关联关系由应用层维护
+- **索引优化**：关键字段建立索引以提高查询性能
+- **用户隔离**：所有数据通过user_id字段实现用户间完全隔离
 
 ## 🌐 API 端点
 
@@ -183,15 +185,17 @@ assets (1) -----> (n) investment_returns
 
 - **数据隔离**：基于用户ID的数据完全隔离
 - **CORS配置**：正确配置跨域资源共享
-- **SQL注入防护**：使用参数化查询
+- **参数化查询**：使用D1参数化查询防止注入攻击
 - **输入验证**：前端和后端双重数据验证
+- **无服务器安全**：Cloudflare Workers提供企业级安全保障
 
 ## 🚀 性能优化
 
-- **CDN加速**：使用Cloudflare全球CDN
+- **全球CDN加速**：使用Cloudflare全球CDN和D1全球分布式数据库
+- **边缘计算**：数据和计算在离用户最近的边缘节点执行
 - **数据库索引**：关键字段建立索引优化查询
 - **缓存策略**：合理使用浏览器缓存
-- **代码压缩**：生产环境代码优化
+- **无服务器架构**：零冷启动时间，自动缩放
 
 ## 📱 移动端支持
 
