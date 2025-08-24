@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人投资组合</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .nav-button { @apply text-gray-600 hover:text-blue-600 hover:bg-blue-50; }
+        .nav-button.active { @apply text-blue-600 bg-blue-50 font-medium; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <div class="min-h-screen flex flex-col">
+        <!-- 头部导航 -->
+        <header class="bg-white shadow-sm sticky top-0 z-10">
+            <div class="max-w-6xl mx-auto px-4 py-3">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-2xl font-bold text-gray-800 flex items-center">
+                        <i class="fas fa-chart-line mr-2 text-blue-500"></i>
+                        个人投资组合
+                    </h1>
+                    <div class="flex space-x-1">
+                        <button id="dashboardBtn" class="nav-button active px-4 py-2 rounded-lg transition-all duration-200 flex items-center">
+                            <i class="fas fa-tachometer-alt mr-2"></i><span>仪表板</span>
+                        </button>
+                        <button id="assetsBtn" class="nav-button px-4 py-2 rounded-lg transition-all duration-200 flex items-center">
+                            <i class="fas fa-coins mr-2"></i><span>资产</span>
+                        </button>
+                        <button id="cashFlowBtn" class="nav-button px-4 py-2 rounded-lg transition-all duration-200 flex items-center">
+                            <i class="fas fa-exchange-alt mr-2"></i><span>现金流</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主要内容 -->
+        <main class="flex-1 max-w-6xl mx-auto w-full px-4 py-6">
+            <!-- 仪表板页面 -->
+            <div id="dashboardContent" class="tab-content active">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">总资产</p>
+                                <p id="totalAssets" class="text-2xl font-bold text-green-600">¥0</p>
+                            </div>
+                            <i class="fas fa-coins text-3xl text-green-500"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">总负债</p>
+                                <p id="totalLiabilities" class="text-2xl font-bold text-red-600">¥0</p>
+                            </div>
+                            <i class="fas fa-credit-card text-3xl text-red-500"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">净资产</p>
+                                <p id="netWorth" class="text-2xl font-bold text-blue-600">¥0</p>
+                            </div>
+                            <i class="fas fa-chart-line text-3xl text-blue-500"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <h3 class="text-lg font-semibold mb-4">资产分布</h3>
+                        <canvas id="assetChart" width="400" height="300"></canvas>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <h3 class="text-lg font-semibold mb-4">月度现金流</h3>
+                        <canvas id="cashFlowChart" width="400" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 资产页面 -->
+            <div id="assetsContent" class="tab-content">
+                <div class="bg-white rounded-lg shadow-sm">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex justify-between items-center">
+                            <h2 class="text-xl font-semibold">资产管理</h2>
+                            <button id="addAssetBtn" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">
+                                <i class="fas fa-plus mr-2"></i>添加资产
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div id="assetsList" class="space-y-4">
+                            <p class="text-gray-500 text-center py-8">暂无资产数据</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 现金流页面 -->
+            <div id="cashFlowContent" class="tab-content">
+                <div class="bg-white rounded-lg shadow-sm">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex justify-between items-center">
+                            <h2 class="text-xl font-semibold">现金流管理</h2>
+                            <button id="addCashFlowBtn" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition">
+                                <i class="fas fa-plus mr-2"></i>添加记录
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div id="cashFlowList" class="space-y-4">
+                            <p class="text-gray-500 text-center py-8">暂无现金流数据</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast提示 -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-3 rounded-lg shadow-lg transform transition-transform duration-300 hidden z-50">
+        操作成功
+    </div>
+
+    <script>
+        // API基础URL
+        const API_BASE = '';
+
+        // 显示Toast提示
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `fixed bottom-4 right-4 px-4 py-3 rounded-lg shadow-lg transform transition-transform duration-300 z-50 ${
+                type === 'error' ? 'bg-red-500' : 'bg-gray-800'
+            } text-white`;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        // API调用函数
+        async function apiCall(endpoint, options = {}) {
+            try {
+                const response = await fetch(API_BASE + endpoint, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers,
+                    },
+                    ...options,
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('API调用失败:', error);
+                showToast('网络请求失败', 'error');
+                throw error;
+            }
+        }
+
+        // 导航功能
+        function initNavigation() {
+            const buttons = document.querySelectorAll('.nav-button');
+            const contents = document.querySelectorAll('.tab-content');
+
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // 移除所有active状态
+                    buttons.forEach(b => b.classList.remove('active'));
+                    contents.forEach(c => c.classList.remove('active'));
+
+                    // 添加active状态
+                    button.classList.add('active');
+                    const targetId = button.id.replace('Btn', 'Content');
+                    document.getElementById(targetId)?.classList.add('active');
+                });
+            });
+        }
+
+        // 加载仪表板数据
+        async function loadDashboard() {
+            try {
+                const data = await apiCall('/api/dashboard/overview');
+                
+                document.getElementById('totalAssets').textContent = 
+                    '¥' + (data.total_assets || 0).toLocaleString();
+                document.getElementById('totalLiabilities').textContent = 
+                    '¥' + (data.total_liabilities || 0).toLocaleString();
+                document.getElementById('netWorth').textContent = 
+                    '¥' + (data.net_worth || 0).toLocaleString();
+
+                // 创建图表
+                createAssetChart();
+                createCashFlowChart();
+            } catch (error) {
+                console.error('加载仪表板数据失败:', error);
+            }
+        }
+
+        // 创建资产分布图表
+        function createAssetChart() {
+            const ctx = document.getElementById('assetChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['房产', '股票', '基金', '现金'],
+                    datasets: [{
+                        data: [300000, 50000, 30000, 20000],
+                        backgroundColor: [
+                            '#3B82F6',
+                            '#10B981',
+                            '#F59E0B',
+                            '#EF4444'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // 创建现金流图表
+        function createCashFlowChart() {
+            const ctx = document.getElementById('cashFlowChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                    datasets: [{
+                        label: '收入',
+                        data: [16000, 16000, 16000, 16000, 16000, 16000],
+                        borderColor: '#10B981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: '支出',
+                        data: [12000, 11000, 13000, 10000, 12500, 11500],
+                        borderColor: '#EF4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // 加载资产列表
+        async function loadAssets() {
+            try {
+                const assets = await apiCall('/api/assets');
+                const assetsList = document.getElementById('assetsList');
+                
+                if (assets.length === 0) {
+                    assetsList.innerHTML = '<p class="text-gray-500 text-center py-8">暂无资产数据</p>';
+                    return;
+                }
+
+                assetsList.innerHTML = assets.map(asset => `
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h4 class="font-semibold text-gray-800">${asset.name}</h4>
+                                <p class="text-sm text-gray-600">${asset.asset_type_name || '未分类'}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-semibold text-green-600">¥${asset.current_value.toLocaleString()}</p>
+                                <p class="text-sm text-gray-500">${asset.description || ''}</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('加载资产列表失败:', error);
+            }
+        }
+
+        // 加载现金流列表
+        async function loadCashFlows() {
+            try {
+                const cashFlows = await apiCall('/api/cash-flows');
+                const cashFlowList = document.getElementById('cashFlowList');
+                
+                if (cashFlows.length === 0) {
+                    cashFlowList.innerHTML = '<p class="text-gray-500 text-center py-8">暂无现金流数据</p>';
+                    return;
+                }
+
+                cashFlowList.innerHTML = cashFlows.map(flow => `
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h4 class="font-semibold text-gray-800">${flow.category}</h4>
+                                <p class="text-sm text-gray-600">${flow.description || ''}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-semibold ${flow.type === 'income' ? 'text-green-600' : 'text-red-600'}">
+                                    ${flow.type === 'income' ? '+' : '-'}¥${flow.amount.toLocaleString()}
+                                </p>
+                                <p class="text-sm text-gray-500">${flow.date}</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('加载现金流列表失败:', error);
+            }
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', function() {
+            initNavigation();
+            loadDashboard();
+
+            // 监听页面切换
+            document.getElementById('assetsBtn').addEventListener('click', loadAssets);
+            document.getElementById('cashFlowBtn').addEventListener('click', loadCashFlows);
+
+            // 添加按钮事件（暂时显示提示）
+            document.getElementById('addAssetBtn')?.addEventListener('click', () => {
+                showToast('添加资产功能开发中');
+            });
+            
+            document.getElementById('addCashFlowBtn')?.addEventListener('click', () => {
+                showToast('添加现金流功能开发中');
+            });
+        });
+    </script>
+</body>
+</html>

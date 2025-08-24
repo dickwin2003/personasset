@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聚财</title>
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <link rel="stylesheet" href="src/css/tailwind.min.css">
+    <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
+    <script src="assets/vendor/chart.js/chart.umd.min.js"></script>
+    <script src="assets/vendor/chartjs-plugin-datalabels.min.js"></script>
+    <link rel="stylesheet" href="src/css/style.css">
+    
+    <!-- Favicon and icons -->
+    <link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
+    <link rel="manifest" href="assets/icons/site.webmanifest">
+    
+    <meta name="theme-color" content="#3b82f6"/>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <!-- 主容器 -->
+    <div class="min-h-screen flex flex-col">
+        <!-- 头部导航 -->
+        <header class="bg-white shadow-sm sticky top-0 z-10">
+            <div class="max-w-6xl mx-auto px-4 py-3">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-2xl font-bold text-gray-800 flex items-center">
+                        <img src="assets/icons/android-chrome-192x192.png" alt="聚财" class="mr-2 w-8 h-8">
+                        聚财
+                    </h1>
+                    <div class="flex space-x-1">
+                        <button id="recordBtn" class="nav-button active px-4 py-2 rounded-lg transition-all duration-200 flex items-center">
+                            <i class="fas fa-edit mr-2"></i><span>速记</span>
+                        </button>
+                        <button id="overviewBtn" class="nav-button px-4 py-2 rounded-lg transition-all duration-200 flex items-center">
+                            <i class="fas fa-chart-line mr-2"></i><span>总览</span>
+                        </button>
+                        <button id="settingsBtn" class="nav-button px-4 py-2 rounded-lg transition-all duration-200 flex items-center">
+                            <i class="fas fa-cog mr-2"></i><span>设置</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主要内容 -->
+        <main class="flex-grow">
+            <div class="max-w-6xl mx-auto px-4 py-6">
+                <!-- 记录页面 -->
+                <div id="recordPage" class="page page-card fade-in bg-white rounded-2xl shadow-lg p-6">
+                    <div class="mb-6 pb-4 border-b border-gray-100">
+                        <h2 id="currentDate" class="text-2xl font-bold text-gray-800"></h2>
+                        <p class="text-gray-500 mt-1">记录您今日的资产状况</p>
+                    </div>
+                    
+                    <div id="accountsList" class="mb-8 space-y-4"></div>
+                    
+                    <div class="total-section bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-5 mb-6 border border-blue-100">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                            <div class="flex items-center mb-3 md:mb-0">
+                                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-money-bill-wave text-blue-500"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-medium text-gray-700">今日总资产</h3>
+                                    <p class="text-sm text-gray-500">所有账户资产合计</p>
+                                </div>
+                            </div>
+                            <div class="flex items-baseline">
+                                <span id="totalAmount" class="text-3xl font-bold text-blue-600">0</span>
+                                <span class="text-xl font-bold text-blue-600 ml-1" id="totalUnit"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 flex flex-wrap justify-end gap-3">
+                        <button id="importBtn" class="action-button import-btn px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition flex items-center whitespace-nowrap" style="width: 120px; justify-content: center;">
+                            <i class="fas fa-file-import mr-2" style="width: 20px; text-align: center;"></i>json导入
+                        </button>
+                        <button id="importClipboardBtn" class="action-button import-clipboard-btn px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition flex items-center whitespace-nowrap" style="width: 120px; justify-content: center;">
+                            <i class="fas fa-clipboard mr-2" style="width: 20px; text-align: center;"></i>粘贴导入
+                        </button>
+                        <button id="exportBtn" class="action-button export-btn px-4 py-2 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg transition flex items-center whitespace-nowrap" style="width: 120px; justify-content: center;">
+                            <i class="fas fa-download mr-2" style="width: 20px; text-align: center;"></i>json导出
+                        </button>
+                        <button id="exportClipboardBtn" class="action-button export-clipboard-btn px-4 py-2 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg transition flex items-center whitespace-nowrap" style="width: 120px; justify-content: center;">
+                            <i class="fas fa-copy mr-2" style="width: 20px; text-align: center;"></i>复制数据
+                        </button>
+                        <button id="populateLastDataBtn" class="action-button populate-btn px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition flex items-center whitespace-nowrap" style="width: 120px; justify-content: center;">
+                            <i class="fas fa-history mr-2" style="width: 20px; text-align: center;"></i>填充历史
+                        </button>
+                        <button id="saveBtn" class="action-button save-btn px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition flex items-center whitespace-nowrap" style="width: 120px; justify-content: center;">
+                            <i class="fas fa-save mr-2" style="width: 20px; text-align: center;"></i>缓存保存
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 总览页面 -->
+                <div id="overviewPage" class="page page-card hidden fade-in bg-white rounded-2xl shadow-lg p-6">
+                    <div class="mb-6 pb-4 border-b border-gray-100">
+                        <h2 class="text-2xl font-bold text-gray-800">资产概览</h2>
+                        <p class="text-gray-500 mt-1">查看您的资产趋势和分布情况</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                        <!-- 总资产标签 -->
+                        <div class="lg:col-span-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                                <div class="flex items-center mb-4 md:mb-0">
+                                    <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                                        <i class="fas fa-coins text-2xl text-blue-500"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-xl font-bold text-gray-800">总资产</h3>
+                                        <p class="text-gray-600 mt-1">当前所有资产合计</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="flex items-baseline justify-end">
+                                        <span id="overviewTotalAmount" class="text-4xl font-bold text-blue-600">0</span>
+                                        <span id="overviewTotalUnit" class="text-2xl font-bold text-blue-600 ml-1"></span>
+                                    </div>
+                                    <div class="text-sm text-gray-500 mt-1">账户筛选</div>
+                                    <div id="accountFilters" class="flex flex-wrap gap-2 mt-2 justify-end"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 趋势图 -->
+                        <div class="lg:col-span-2 chart-container bg-gray-50 rounded-2xl p-5">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                                    <i class="fas fa-chart-line mr-2 text-blue-500"></i>资产变化趋势
+                                </h3>
+                                <div class="flex flex-wrap gap-2 mt-2 sm:mt-0">
+                                    <select id="trendPeriodSelect" class="text-sm border border-gray-300 rounded-lg px-3 py-1.5 bg-white min-w-[120px]">
+                                        <option value="all">聚财至今</option>
+                                        <option value="5y">近五年</option>
+                                        <option value="3y">近三年</option>
+                                        <option value="1y">近一年</option>
+                                        <option value="6m">近半年</option>
+                                        <option value="3m">近三月</option>
+                                        <option value="1m">近一月</option>
+                                        <option value="1w">近一周</option>
+                                    </select>
+                                    <label class="flex items-center text-sm bg-white border border-gray-300 rounded-lg px-3 py-1.5 whitespace-nowrap">
+                                        <input type="checkbox" id="logScaleCheckbox" class="rounded text-blue-600 mr-2">
+                                        对数刻度
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="chart-wrapper" style="height: 320px; max-height: 320px;">
+                                <canvas id="trendChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- 分布图 -->
+                        <div class="chart-container bg-gray-50 rounded-2xl p-5">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-pie-chart mr-2 text-blue-500"></i>资产分布占比
+                            </h3>
+                            <div class="chart-wrapper" style="height: 320px; max-height: 320px;">
+                                <canvas id="pieChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- 堆叠折线图（面积图） -->
+                        <div class="lg:col-span-3 chart-container bg-gray-50 rounded-2xl p-5">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-chart-area mr-2 text-blue-500"></i>资产变化堆叠
+                            </h3>
+                            <div class="chart-wrapper" style="height: 320px; max-height: 320px;">
+                                <canvas id="stackedAreaChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- 账户对比图 -->
+                        <div class="lg:col-span-3 chart-container bg-gray-50 rounded-2xl p-5">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-chart-bar mr-2 text-blue-500"></i>账户资产对比
+                            </h3>
+                            <div class="chart-wrapper" style="height: 270px; max-height: 270px;">
+                                <canvas id="barChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 设置页面 -->
+                <div id="settingsPage" class="page page-card hidden fade-in bg-white rounded-2xl shadow-lg p-6">
+                    <div class="mb-6 pb-4 border-b border-gray-100">
+                        <h2 class="text-2xl font-bold text-gray-800">系统设置</h2>
+                        <p class="text-gray-500 mt-1">自定义您的使用体验，设置将自动保存</p>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <!-- 显示设置 -->
+                        <div class="setting-section">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200 flex items-center">
+                                <i class="fas fa-eye mr-2 text-blue-500"></i>显示设置
+                            </h3>
+                            <div class="space-y-4">
+                                <label class="setting-option flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                                    <input type="checkbox" id="showNotesCheckbox" class="setting-checkbox rounded text-blue-600 w-5 h-5 mr-3">
+                                    <div>
+                                        <span class="setting-label font-medium text-gray-700">在记录页显示账户备注输入框</span>
+                                        <p class="text-sm text-gray-500 mt-1">启用后可在每个账户旁添加备注信息</p>
+                                    </div>
+                                </label>
+                                <label class="setting-option flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                                    <input type="checkbox" id="showDecimalCheckbox" class="setting-checkbox rounded text-blue-600 w-5 h-5 mr-3">
+                                    <div>
+                                        <span class="setting-label font-medium text-gray-700">在记录页金额输入框显示小数点</span>
+                                        <p class="text-sm text-gray-500 mt-1">启用后金额将以小数形式显示</p>
+                                    </div>
+                                </label>
+                                <label class="setting-option flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                                    <input type="checkbox" id="thousandsSeparatorCheckbox" class="setting-checkbox rounded text-blue-600 w-5 h-5 mr-3">
+                                    <div>
+                                        <span class="setting-label font-medium text-gray-700">总计金额使用千分位符</span>
+                                        <p class="text-sm text-gray-500 mt-1">当总计金额单位为元时，是否每三位数字添加一个逗号分隔符</p>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- 单位设置 -->
+                        <div class="setting-section">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200 flex items-center">
+                                <i class="fas fa-ruler mr-2 text-blue-500"></i>单位设置
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <label class="block text-sm font-medium mb-3 text-gray-700">记录页 子账户金额单位</label>
+                                    <div id="recordUnits" class="unit-buttons flex flex-wrap gap-2"></div>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <label class="block text-sm font-medium mb-3 text-gray-700">总览页 图表金额单位</label>
+                                    <div id="overviewUnits" class="unit-buttons flex flex-wrap gap-2"></div>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <label class="block text-sm font-medium mb-3 text-gray-700">总资产 金额单位</label>
+                                    <div id="summaryUnits" class="unit-buttons flex flex-wrap gap-2"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 账户管理 -->
+                        <div class="setting-section">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200 flex items-center">
+                                <i class="fas fa-users mr-2 text-blue-500"></i>账户管理
+                            </h3>
+                            <div id="accountsManagement" class="space-y-3 mb-4"></div>
+                            <button id="addAccountBtn" class="add-account-btn px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition flex items-center">
+                                <i class="fas fa-plus mr-2"></i>添加账户
+                            </button>
+                        </div>
+                        
+                        <!-- 历史编辑器 -->
+                        <div class="setting-section">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200 flex items-center">
+                                <i class="fas fa-history mr-2 text-blue-500"></i>历史编辑器
+                            </h3>
+                            <div id="historyEditor" class="history-editor border border-gray-200 rounded-lg max-h-96 overflow-y-auto">
+                                <div class="p-4 bg-gray-50 border-b font-medium">暂无历史数据</div>
+                            </div>
+                            <button id="saveHistoryBtn" class="save-history-btn mt-4 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition flex items-center">
+                                <i class="fas fa-save mr-2"></i>保存数据更改，非导出
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 页脚 -->
+        <footer class="bg-white border-t border-gray-200 py-4">
+            <div class="max-w-6xl mx-auto px-4 text-center text-gray-500 text-sm">
+                <p>© 2025 <a href="https://github.com/nbzz/converasset" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:text-blue-700 transition">聚财</a> 作者 <a href="https://github.com/nbzz" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:text-blue-700 transition">Cyberteng</a> - 采用 <a href="https://github.com/nbzz/converasset/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:text-blue-700 transition">GPLv3许可证</a> - 版本 v1.0.0</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Toast提示 -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-3 rounded-lg shadow-lg transform transition-transform duration-300 hidden z-50">
+        操作成功
+    </div>
+
+    <!-- 引入外部JavaScript文件 -->
+    <script src="src/js/constants.js"></script>
+    <script src="src/js/utils.js"></script>
+    <script src="src/js/charts.js"></script>
+    <script src="src/js/pages.js"></script>
+    <script src="src/js/data.js"></script>
+    <script src="src/js/events.js"></script>
+    <script src="src/js/ui.js"></script>
+    <script src="src/js/app.js"></script>
+    <script src="src/js/clipboard.js"></script>
+    
+    <!-- 注册Service Worker以支持PWA -->
+    <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(registration => {
+            console.log('SW registered: ', registration);
+          })
+          .catch(registrationError => {
+            console.log('SW registration failed: ', registrationError);
+          });
+      });
+    }
+    </script>
+    
+</body>
+</html>

@@ -1,0 +1,2947 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>个人资产组合</title>
+    <script src="3.4.17"></script>
+    <link rel="stylesheet" href="ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="npm/chart.js"></script>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="format-detection" content="telephone=no">
+    <style>
+        .tab-btn {
+            color: #6b7280;
+            background-color: transparent;
+        }
+        .tab-btn.active {
+            color: #3b82f6;
+            background-color: #dbeafe;
+        }
+        .tab-btn:hover {
+            background-color: #f3f4f6;
+        }
+        .tab-btn.active:hover {
+            background-color: #dbeafe;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen overflow-x-hidden">
+    <!-- 移动端导航栏 -->
+    <div class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="px-4 py-3">
+            <div class="flex items-center justify-between">
+                <h1 class="text-lg font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-chart-line mr-2 text-blue-500"></i>
+                    个人资产组合
+                </h1>
+                <button id="menuBtn" class="p-2 rounded-lg bg-gray-100 text-gray-600">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
+            <!-- 下拉菜单 -->
+            <div id="dropdownMenu" class="hidden absolute top-full right-4 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                <div class="py-2">
+                    <button id="assetTypesBtn" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+                        <i class="fas fa-tags mr-2 text-blue-500"></i>
+                        资产类型管理
+                    </button>
+                    <button id="settingsBtn" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+                        <i class="fas fa-cog mr-2 text-gray-500"></i>
+                        设置
+                    </button>
+                    <button id="aboutBtn" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+                        <i class="fas fa-info-circle mr-2 text-green-500"></i>
+                        关于
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 底部导航 -->
+        <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+            <div class="grid grid-cols-4 gap-1 p-2">
+                <button id="dashboardBtn" class="nav-tab active flex flex-col items-center py-2 px-1 rounded-lg transition-all">
+                    <i class="fas fa-home text-lg mb-1"></i>
+                    <span class="text-xs">首页</span>
+                </button>
+                <button id="assetsBtn" class="nav-tab flex flex-col items-center py-2 px-1 rounded-lg transition-all">
+                    <i class="fas fa-coins text-lg mb-1"></i>
+                    <span class="text-xs">资产</span>
+                </button>
+                <button id="liabilitiesBtn" class="nav-tab flex flex-col items-center py-2 px-1 rounded-lg transition-all">
+                    <i class="fas fa-credit-card text-lg mb-1"></i>
+                    <span class="text-xs">负债</span>
+                </button>
+                <button id="cashFlowBtn" class="nav-tab flex flex-col items-center py-2 px-1 rounded-lg transition-all">
+                    <i class="fas fa-chart-line text-lg mb-1"></i>
+                    <span class="text-xs">资金流</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="pb-20 px-4 py-4">
+        <!-- 仪表板页面 -->
+        <div id="dashboardPage" class="page">
+
+            
+            <!-- 资产总览（一行显示） -->
+            <div class="grid grid-cols-3 gap-3 mb-6">
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-4 text-white">
+                    <div class="text-center">
+                        <i class="fas fa-coins text-2xl mb-2"></i>
+                        <p class="text-xs opacity-90">总资产</p>
+                        <p id="totalAssets" class="text-lg font-bold">￥0</p>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-red-500 to-red-600 rounded-lg p-4 text-white">
+                    <div class="text-center">
+                        <i class="fas fa-credit-card text-2xl mb-2"></i>
+                        <p class="text-xs opacity-90">总负债</p>
+                        <p id="totalLiabilities" class="text-lg font-bold">￥0</p>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-lg p-4 text-white">
+                    <div class="text-center">
+                        <i class="fas fa-chart-line text-2xl mb-2"></i>
+                        <p class="text-xs opacity-90">净资产</p>
+                        <p id="netWorth" class="text-lg font-bold">￥0</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 今年收支对比 -->
+            <div class="bg-white rounded-lg p-4 shadow-sm mb-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                    <i class="fas fa-balance-scale mr-2 text-purple-500"></i>
+                    今年收支对比
+                </h3>
+                <div class="grid grid-cols-4 gap-2 text-center">
+                    <div class="p-2 bg-green-50 rounded-lg">
+                        <p class="text-xs text-gray-600 mb-1">预计收入</p>
+                        <p id="projectedIncome" class="text-sm font-bold text-green-600">￥0</p>
+                    </div>
+                    <div class="p-2 bg-green-100 rounded-lg">
+                        <p class="text-xs text-gray-600 mb-1">实际收入</p>
+                        <p id="actualIncome" class="text-sm font-bold text-green-700">￥0</p>
+                    </div>
+                    <div class="p-2 bg-red-50 rounded-lg">
+                        <p class="text-xs text-gray-600 mb-1">预计支出</p>
+                        <p id="projectedExpense" class="text-sm font-bold text-red-600">￥0</p>
+                    </div>
+                    <div class="p-2 bg-red-100 rounded-lg">
+                        <p class="text-xs text-gray-600 mb-1">实际支出</p>
+                        <p id="actualExpense" class="text-sm font-bold text-red-700">￥0</p>
+                    </div>
+                </div>
+                <div class="mt-3 text-center p-2 rounded-lg" id="balanceStatus">
+                    <p class="text-sm font-medium" id="balanceText">加载中...</p>
+                </div>
+            </div>
+            
+            <!-- 一年收支趋势图 -->
+            <div class="bg-white rounded-lg p-4 shadow-sm mb-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                    <i class="fas fa-chart-line mr-2 text-blue-500"></i>
+                    一年收支趋势
+                </h3>
+                <div class="h-64">
+                    <canvas id="monthlyTrendChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- 资产收益 -->
+            <div class="bg-white rounded-lg p-4 shadow-sm mb-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                    <i class="fas fa-trophy mr-2 text-yellow-500"></i>
+                    资产收益
+                </h3>
+                <div class="h-64">
+                    <canvas id="assetReturnsChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- 资产分布图 -->
+            <div class="bg-white rounded-lg p-4 shadow-sm mb-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                    <i class="fas fa-pie-chart mr-2 text-orange-500"></i>
+                    资产分布
+                </h3>
+                <div class="h-64">
+                    <canvas id="assetDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 资产页面 -->
+        <div id="assetsPage" class="page hidden">
+            <div class="mb-4 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-gray-800">我的资产</h2>
+                <button id="addAssetBtn" class="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm flex items-center">
+                    <i class="fas fa-plus mr-2"></i>添加资产
+                </button>
+            </div>
+            <div id="assetsContainer"></div>
+        </div>
+
+        <!-- 负债页面 -->
+        <div id="liabilitiesPage" class="page hidden">
+            <div class="mb-4 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-gray-800">我的负债</h2>
+                <button id="addLiabilityBtn" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm flex items-center">
+                    <i class="fas fa-plus mr-2"></i>添加负债
+                </button>
+            </div>
+            <div id="liabilitiesContainer"></div>
+        </div>
+
+        <!-- 资金流入页面 -->
+        <div id="cashFlowPage" class="page hidden">
+            <div class="mb-4 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-gray-800">资金流管理</h2>
+                <button id="addCashFlowBtn" class="bg-purple-500 text-white px-4 py-2 rounded-lg text-sm flex items-center">
+                    <i class="fas fa-plus mr-2"></i>添加记录
+                </button>
+            </div>
+            
+            <!-- 切换选项卡 -->
+            <div class="mb-4 bg-white rounded-lg p-1 shadow-sm">
+                <div class="grid grid-cols-2 gap-1">
+                    <button id="plannedFlowTab" class="tab-btn active py-2 px-4 rounded-md text-sm font-medium transition-all">
+                        <i class="fas fa-calendar-alt mr-1"></i>预期收支
+                    </button>
+                    <button id="historicalFlowTab" class="tab-btn py-2 px-4 rounded-md text-sm font-medium transition-all">
+                        <i class="fas fa-history mr-1"></i>历史记录
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 预期收支内容 -->
+            <div id="plannedFlowContent">
+                <div id="cashFlowContainer"></div>
+            </div>
+            
+            <!-- 历史记录内容 -->
+            <div id="historicalFlowContent" class="hidden">
+                <!-- 历史现金流图表 -->
+                <div class="bg-white rounded-lg p-4 shadow-sm mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                        <i class="fas fa-chart-line mr-2 text-blue-500"></i>
+                        历史收支趋势
+                    </h3>
+                    <div class="h-64">
+                        <canvas id="historicalFlowChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- 历史记录列表 -->
+                <div class="bg-white rounded-lg p-4 shadow-sm">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                        <i class="fas fa-list mr-2 text-green-500"></i>
+                        历史交易记录
+                    </h3>
+                    <div id="historicalFlowList"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 设置页面 -->
+        <div id="settingsPage" class="page hidden">
+            <div class="mb-4">
+                <h2 class="text-xl font-bold text-gray-800">设置</h2>
+            </div>
+            
+            <!-- 用户信息 -->
+            <div class="bg-white rounded-lg p-4 shadow-sm mb-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                    <i class="fas fa-user mr-2 text-blue-500"></i>
+                    用户信息
+                </h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">用户名</label>
+                        <input type="text" id="usernameInput" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="请输入用户名">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">手机号码</label>
+                        <input type="tel" id="phoneInput" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="请输入手机号码">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">邮箱</label>
+                        <input type="email" id="emailInput" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="请输入邮箱">
+                    </div>
+                    <button id="saveUserInfoBtn" class="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 flex items-center justify-center">
+                        <i class="fas fa-save mr-2"></i>
+                        保存信息
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 应用设置 -->
+            <div class="bg-white rounded-lg p-4 shadow-sm mb-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                    <i class="fas fa-cog mr-2 text-gray-500"></i>
+                    应用设置
+                </h3>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-700">数据备份</span>
+                        <button class="text-blue-500 hover:text-blue-600">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-700">数据清理</span>
+                        <button class="text-red-500 hover:text-red-600">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 关于 -->
+            <div class="bg-white rounded-lg p-4 shadow-sm">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                    <i class="fas fa-info-circle mr-2 text-green-500"></i>
+                    关于
+                </h3>
+                <div class="text-gray-600 space-y-2">
+                    <p>个人资产组合管理系统</p>
+                    <p>版本: 2.0.0</p>
+                    <p>最后更新: 2025-08-07</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框 -->
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-end sm:items-center justify-center">
+        <div id="modalContent" class="bg-white w-full sm:w-96 sm:rounded-lg rounded-t-xl max-h-[80vh] overflow-y-auto">
+            <!-- 模态框内容将动态插入 -->
+        </div>
+    </div>
+
+    <!-- Toast 通知 -->
+    <div id="toast" class="fixed top-4 right-4 bg-green-500 text-white px-4 py-3 rounded-lg shadow-lg transform transition-transform duration-300 translate-x-full z-50">
+        <div class="flex items-center">
+            <i class="fas fa-check-circle mr-2"></i>
+            <span id="toastMessage">操作成功</span>
+        </div>
+    </div>
+    <script>
+        // 全局变量
+        let currentPage = 'dashboard';
+        let assetTypes = [];
+        let assets = [];
+        
+        // API客户端
+        class ApiClient {
+            constructor() {
+                this.baseUrl = window.location.origin;
+            }
+            
+            async request(endpoint, options = {}) {
+                const url = `${this.baseUrl}/api${endpoint}`;
+                const config = {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers,
+                    },
+                    ...options,
+                };
+                try {
+                    const response = await fetch(url, config);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return await response.json();
+                } catch (error) {
+                    console.error('API request failed:', error);
+                    throw error;
+                }
+            }
+            
+            // 仪表板
+            async getDashboardOverview() {
+                return this.request('/dashboard/overview');
+            }
+            
+            // 资产类型
+            async getAssetTypes() {
+                return this.request('/asset-types');
+            }
+            
+            async createAssetType(data) {
+                return this.request('/asset-types', {
+                    method: 'POST',
+                    body: JSON.stringify(data),
+                });
+            }
+            
+            async deleteAssetType(id) {
+                return this.request(`/asset-types/${id}`, {
+                    method: 'DELETE',
+                });
+            }
+            
+            // 资产
+            async getAssets() {
+                return this.request('/assets');
+            }
+            
+            async createAsset(data) {
+                return this.request('/assets', {
+                    method: 'POST',
+                    body: JSON.stringify(data),
+                });
+            }
+            
+            async deleteAsset(id) {
+                return this.request(`/assets/${id}`, {
+                    method: 'DELETE',
+                });
+            }
+            
+            // 资金流入
+            async getCashFlows() {
+                return this.request('/cash-flows');
+            }
+            
+            async createCashFlow(data) {
+                return this.request('/cash-flows', {
+                    method: 'POST',
+                    body: JSON.stringify(data),
+                });
+            }
+            
+            async deleteCashFlow(id) {
+                return this.request(`/cash-flows/${id}`, {
+                    method: 'DELETE',
+                });
+            }
+            
+            async updateCashFlow(id, data) {
+                return this.request(`/cash-flows/${id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(data),
+                });
+            }
+            
+            async updateAsset(id, data) {
+                return this.request(`/assets/${id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(data),
+                });
+            }
+            
+            async updateAssetType(id, data) {
+                return this.request(`/asset-types/${id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(data),
+                });
+            }
+            
+            // 负债
+            async getLiabilities() {
+                return this.request('/liabilities');
+            }
+            
+            async createLiability(data) {
+                return this.request('/liabilities', {
+                    method: 'POST',
+                    body: JSON.stringify(data),
+                });
+            }
+            
+            async deleteLiability(id) {
+                return this.request('/liabilities/' + id, {
+                    method: 'DELETE',
+                });
+            }
+            
+            async updateLiability(id, data) {
+                return this.request('/liabilities/' + id, {
+                    method: 'PUT',
+                    body: JSON.stringify(data),
+                });
+            }
+            
+            // 资产删除
+            async deleteAsset(id) {
+                return this.request(`/assets/${id}`, {
+                    method: 'DELETE',
+                });
+            }
+            
+            // 资产类型删除
+            async deleteAssetType(id) {
+                return this.request(`/asset-types/${id}`, {
+                    method: 'DELETE',
+                });
+            }
+            
+            // 用户信息
+            async getUserInfo() {
+                return this.request('/user/info');
+            }
+            
+            async updateUserInfo(data) {
+                return this.request('/user/info', {
+                    method: 'PUT',
+                    body: JSON.stringify(data),
+                });
+            }
+            
+            // 分析数据
+            async getYearlyIncomeExpense() {
+                return this.request('/analytics/yearly-income-expense');
+            }
+            
+            async getMonthlyIncomeExpense() {
+                return this.request('/analytics/monthly-income-expense');
+            }
+            
+            async getAssetReturns() {
+                return this.request('/analytics/asset-returns');
+            }
+            
+            async getBalanceForecast() {
+                return this.request('/analytics/balance-forecast');
+            }
+            
+            // 历史数据
+            async getCashFlowHistory() {
+                return this.request('/cash-flows/history');
+            }
+            
+            async getHistoricalMonthlyFlow() {
+                return this.request('/analytics/historical-monthly-flow');
+            }
+            
+            async getAssetValueTrends() {
+                return this.request('/analytics/asset-value-trends');
+            }
+        }
+        
+        const apiClient = new ApiClient();
+        
+        // 页面导航
+        function showPage(pageName) {
+            currentPage = pageName;
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.add('hidden');
+            });
+            document.getElementById(pageName + 'Page').classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // 只有底部导航的页面才高亮按钮
+            const navBtn = document.getElementById(pageName + 'Btn');
+            if (navBtn) {
+                navBtn.classList.add('active');
+            }
+            
+            // 加载对应页面数据
+            switch(pageName) {
+                case 'dashboard':
+                    loadDashboard();
+                    break;
+                case 'assets':
+                    loadAssets();
+                    break;
+                case 'liabilities':
+                    loadLiabilities();
+                    break;
+                case 'cashFlow':
+                    loadCashFlow();
+                    break;
+                case 'settings':
+                    loadSettings();
+                    break;
+            }
+        }
+        
+        // 菜单处理
+        function initializeMenu() {
+            const menuBtn = document.getElementById('menuBtn');
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            const assetTypesBtn = document.getElementById('assetTypesBtn');
+            
+            // 菜单按钮点击事件
+            menuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('hidden');
+            });
+            
+            // 点击页面其他地方关闭菜单
+            document.addEventListener('click', () => {
+                dropdownMenu.classList.add('hidden');
+            });
+            
+            // 资产类型管理按钮
+            assetTypesBtn.addEventListener('click', () => {
+                dropdownMenu.classList.add('hidden');
+                showAssetTypesManagement();
+            });
+            
+            // 设置按钮
+            document.getElementById('settingsBtn').addEventListener('click', () => {
+                dropdownMenu.classList.add('hidden');
+                showPage('settings');
+            });
+        }
+        
+        // 显示Toast
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            toast.className = `fixed top-4 right-4 px-4 py-3 rounded-lg shadow-lg transform transition-transform duration-300 z-50 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white`;
+            
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+            }, 3000);
+        }
+        
+        // 显示/隐藏模态框
+        function showModal(content) {
+            document.getElementById('modalContent').innerHTML = content;
+            document.getElementById('modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function hideModal() {
+            document.getElementById('modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+        
+        // 加载仪表板
+        async function loadDashboard() {
+            try {
+                // 并行加载数据
+                const [userInfo, overview, balanceForecast] = await Promise.all([
+                    apiClient.getUserInfo(),
+                    apiClient.getDashboardOverview(),
+                    apiClient.getBalanceForecast()
+                ]);
+                
+                // 用户信息不再显示
+                
+                // 更新资产总览
+                document.getElementById('totalAssets').textContent = 
+                    '￥' + (overview.total_assets || 0).toLocaleString();
+                document.getElementById('totalLiabilities').textContent = 
+                    '￥' + (overview.total_liabilities || 0).toLocaleString();
+                document.getElementById('netWorth').textContent = 
+                    '￥' + (overview.net_worth || 0).toLocaleString();
+                
+                // 更新收支预计和实际对比
+                const plannedIncome = balanceForecast.planned?.income || 0;
+                const plannedExpense = balanceForecast.planned?.expense || 0;
+                const actualIncome = balanceForecast.actual?.income || 0;
+                const actualExpense = balanceForecast.actual?.expense || 0;
+                
+                document.getElementById('projectedIncome').textContent = '￥' + plannedIncome.toLocaleString();
+                document.getElementById('projectedExpense').textContent = '￥' + plannedExpense.toLocaleString();
+                document.getElementById('actualIncome').textContent = '￥' + actualIncome.toLocaleString();
+                document.getElementById('actualExpense').textContent = '￥' + actualExpense.toLocaleString();
+                
+                const plannedBalance = plannedIncome - plannedExpense;
+                const actualBalance = actualIncome - actualExpense;
+                const balanceStatus = document.getElementById('balanceStatus');
+                const balanceText = document.getElementById('balanceText');
+                
+                if (actualBalance > 0) {
+                    balanceStatus.className = 'mt-3 text-center p-2 rounded-lg bg-green-100';
+                    balanceText.textContent = '实际盈余￥' + actualBalance.toLocaleString() + ' | 预计盈余￥' + plannedBalance.toLocaleString();
+                    balanceText.className = 'text-sm font-medium text-green-700';
+                } else if (actualBalance < 0) {
+                    balanceStatus.className = 'mt-3 text-center p-2 rounded-lg bg-red-100';
+                    balanceText.textContent = '实际亏损￥' + Math.abs(actualBalance).toLocaleString() + ' | 预计盈余￥' + plannedBalance.toLocaleString();
+                    balanceText.className = 'text-sm font-medium text-red-700';
+                } else {
+                    balanceStatus.className = 'mt-3 text-center p-2 rounded-lg bg-gray-100';
+                    balanceText.textContent = '实际收支平衡 | 预计盈余￥' + plannedBalance.toLocaleString();
+                    balanceText.className = 'text-sm font-medium text-gray-700';
+                }
+                
+                // 加载图表
+                await loadCharts();
+                
+            } catch (error) {
+                console.error('Failed to load dashboard:', error);
+                showToast('加载仪表板数据失败', 'error');
+            }
+        }
+        
+        // 全局图表实例
+        let monthlyTrendChartInstance = null;
+        let assetDistributionChartInstance = null;
+        let assetReturnsChartInstance = null;
+        
+        // 加载图表
+        async function loadCharts() {
+            try {
+                const [monthlyData, assetReturns, overview] = await Promise.all([
+                    apiClient.getMonthlyIncomeExpense(),
+                    apiClient.getAssetReturns(),
+                    apiClient.getDashboardOverview()
+                ]);
+                
+                // 渲染月度收支趋势图（区分实际和预期）
+                renderMonthlyTrendChart(monthlyData);
+                
+                // 渲染资产收益图
+                renderAssetReturnsChart(assetReturns);
+                
+                // 渲染资产分布图
+                renderAssetDistributionChart(overview.assets_by_category || []);
+                
+            } catch (error) {
+                console.error('Failed to load charts:', error);
+            }
+        }
+        
+        // 渲染一年收支趋势图（区分实际和预期）
+        function renderMonthlyTrendChart(data) {
+            const ctx = document.getElementById('monthlyTrendChart');
+            if (!ctx) return;
+            
+            // 销毁旧的图表实例
+            if (monthlyTrendChartInstance) {
+                monthlyTrendChartInstance.destroy();
+            }
+            
+            // 处理新的数据格式
+            const currentMonth = data.currentMonth || 8; // 当前月份 (1-12)
+            const actualData = data.actual || [];
+            const plannedData = data.planned || [];
+            
+            // 生成 1-12 月的标签
+            const months = [];
+            const monthLabels = [];
+            for (let i = 1; i <= 12; i++) {
+                const monthStr = '2025-' + String(i).padStart(2, '0'); // 使用2025年数据
+                months.push(monthStr);
+                monthLabels.push(i + '月');
+            }
+            
+            // 创建连续的收入和支出数据（包含实际和预期）
+            const incomeData = months.map((month, index) => {
+                const monthNum = index + 1;
+                if (monthNum < currentMonth) {
+                    // 当前月份之前：使用实际数据
+                    const item = actualData.find(d => d.month === month && d.flow_type === 'income');
+                    return item ? item.total_amount : 0;
+                } else {
+                    // 当前月份及之后：使用预期数据
+                    const item = plannedData.find(d => d.month === month && d.flow_type === 'income');
+                    return item ? item.total_amount : 0;
+                }
+            });
+            
+            const expenseData = months.map((month, index) => {
+                const monthNum = index + 1;
+                if (monthNum < currentMonth) {
+                    // 当前月份之前：使用实际数据
+                    const item = actualData.find(d => d.month === month && d.flow_type === 'expense');
+                    return item ? item.total_amount : 0;
+                } else {
+                    // 当前月份及之后：使用预期数据
+                    const item = plannedData.find(d => d.month === month && d.flow_type === 'expense');
+                    return item ? item.total_amount : 0;
+                }
+            });
+            
+            // 创建分段样式：实际数据部分和预期数据部分
+            const actualIncomeData = incomeData.map((value, index) => index < currentMonth - 1 ? value : null); // 只显示已完成的月份
+            const plannedIncomeData = incomeData.map((value, index) => index >= currentMonth - 2 ? value : null); // 从上个月开始连接
+            const actualExpenseData = expenseData.map((value, index) => index < currentMonth - 1 ? value : null); // 只显示已完成的月份
+            const plannedExpenseData = expenseData.map((value, index) => index >= currentMonth - 2 ? value : null); // 从上个月开始连接
+            
+            monthlyTrendChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: monthLabels, // 使用1-12月标签
+                    datasets: [{
+                        label: '实际收入',
+                        data: actualIncomeData,
+                        borderColor: 'rgb(34, 197, 94)',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        spanGaps: true,
+                        pointRadius: 4
+                    }, {
+                        label: '预期收入',
+                        data: plannedIncomeData,
+                        borderColor: 'rgb(34, 197, 94)',
+                        backgroundColor: 'rgba(34, 197, 94, 0.05)',
+                        borderWidth: 2,
+                        borderDash: [5, 5], // 虚线
+                        tension: 0.4,
+                        spanGaps: true,
+                        pointRadius: 4
+                    }, {
+                        label: '实际支出',
+                        data: actualExpenseData,
+                        borderColor: 'rgb(239, 68, 68)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        spanGaps: true,
+                        pointRadius: 4
+                    }, {
+                        label: '预期支出',
+                        data: plannedExpenseData,
+                        borderColor: 'rgb(239, 68, 68)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.05)',
+                        borderWidth: 2,
+                        borderDash: [5, 5], // 虚线
+                        tension: 0.4,
+                        spanGaps: true,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                pointStyle: 'line',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '￥' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 渲染资产分布图
+        function renderAssetDistributionChart(data) {
+            console.log('renderAssetDistributionChart called with data:', data);
+            const ctx = document.getElementById('assetDistributionChart');
+            if (!ctx) {
+                console.error('assetDistributionChart canvas not found');
+                return;
+            }
+            
+            if (!data || !data.length) {
+                console.log('No asset distribution data, showing empty chart');
+                // 显示空图表
+                if (assetDistributionChartInstance) {
+                    assetDistributionChartInstance.destroy();
+                }
+                assetDistributionChartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['暂无数据'],
+                        datasets: [{
+                            data: [1],
+                            backgroundColor: ['rgba(156, 163, 175, 0.8)'],
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+                return;
+            }
+            
+            // 销毁旧的图表实例
+            if (assetDistributionChartInstance) {
+                assetDistributionChartInstance.destroy();
+            }
+            
+            const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'];
+            
+            assetDistributionChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.map(item => item.category),
+                    datasets: [{
+                        data: data.map(item => item.total_value),
+                        backgroundColor: colors.slice(0, data.length),
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ￥' + context.parsed.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 渲染资产收益对比图（基于成本和现价）
+        function renderAssetReturnsChart(data) {
+            console.log('renderAssetReturnsChart called with data:', data);
+            const ctx = document.getElementById('assetReturnsChart');
+            if (!ctx) {
+                console.error('assetReturnsChart canvas not found');
+                return;
+            }
+            
+            if (!data || !data.length) {
+                console.log('No asset returns data, showing empty chart');
+                // 显示空图表
+                if (assetReturnsChartInstance) {
+                    assetReturnsChartInstance.destroy();
+                }
+                assetReturnsChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['暂无数据'],
+                        datasets: [{
+                            label: '收益率(%)',
+                            data: [0],
+                            backgroundColor: 'rgba(156, 163, 175, 0.8)',
+                            borderColor: 'rgb(156, 163, 175)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '%';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                return;
+            }
+            
+            // 销毁旧的图表实例
+            if (assetReturnsChartInstance) {
+                assetReturnsChartInstance.destroy();
+            }
+            
+            // 按收益率排序
+            const sortedData = data.sort((a, b) => b.return_rate - a.return_rate);
+            
+            assetReturnsChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sortedData.map(item => item.asset_name),
+                    datasets: [{
+                        label: '收益率(%)',
+                        data: sortedData.map(item => item.return_rate),
+                        backgroundColor: sortedData.map(item => 
+                            item.return_rate >= 0 ? 'rgba(34, 197, 94, 0.8)' : 'rgba(239, 68, 68, 0.8)'
+                        ),
+                        borderColor: sortedData.map(item => 
+                            item.return_rate >= 0 ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)'
+                        ),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                usePointStyle: true,
+                                pointStyle: 'line',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const item = sortedData[context.dataIndex];
+                                    return [
+                                        '收益率: ' + item.return_rate + '%',
+                                        '成本价: ￥' + item.cost_price.toLocaleString(),
+                                        '现价: ￥' + item.current_price.toLocaleString(),
+                                        '盈亏: ￥' + item.profit_loss.toLocaleString()
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 加载dashboard资产列表
+        async function loadDashboardAssets() {
+            try {
+                const assets = await apiClient.getAssets();
+                const limitedAssets = assets.slice(0, 5); // 只显示前5个
+                
+                if (limitedAssets.length === 0) {
+                    document.getElementById('dashboardAssetsContainer').innerHTML = '<p class="text-gray-500 text-sm">暂无资产记录</p>';
+                    return;
+                }
+                
+                document.getElementById('dashboardAssetsContainer').innerHTML = limitedAssets.map(asset => `
+                    <div class="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
+                        <div>
+                            <h4 class="font-medium text-gray-800">${asset.name}</h4>
+                            <p class="text-sm text-gray-500">${asset.asset_type_name || '未分类'}</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-bold text-blue-600">￥${asset.current_value.toLocaleString()}</span>
+                            <button onclick="editAsset(${asset.id})" class="ml-2 text-gray-400 hover:text-blue-500">
+                                <i class="fas fa-edit text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Failed to load dashboard assets:', error);
+                document.getElementById('dashboardAssetsContainer').innerHTML = '<p class="text-red-500 text-sm">加载失败</p>';
+            }
+        }
+        
+        // 加载dashboard资产类型列表
+        async function loadDashboardAssetTypes() {
+            try {
+                const assetTypes = await apiClient.getAssetTypes();
+                const limitedTypes = assetTypes.slice(0, 6); // 只显示前6个
+                
+                if (limitedTypes.length === 0) {
+                    document.getElementById('dashboardTypesContainer').innerHTML = '<p class="text-gray-500 text-sm">暂无资产类型</p>';
+                    return;
+                }
+                
+                const groupedTypes = limitedTypes.reduce((acc, type) => {
+                    if (!acc[type.category]) acc[type.category] = [];
+                    acc[type.category].push(type);
+                    return acc;
+                }, {});
+                
+                document.getElementById('dashboardTypesContainer').innerHTML = Object.entries(groupedTypes).map(([category, types]) => `
+                    <div class="mb-3 last:mb-0">
+                        <h4 class="text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                            <i class="fas ${getCategoryIcon(category)} mr-2 text-blue-500"></i>
+                            ${getCategoryName(category)} (${types.length}项)
+                        </h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            ${types.map(type => `
+                                <div class="bg-gray-50 rounded-lg p-2 text-sm">
+                                    <div class="flex justify-between items-center">
+                                        <span class="font-medium text-gray-800">${type.name}</span>
+                                        <button onclick="editAssetType(${type.id})" class="text-gray-400 hover:text-blue-500">
+                                            <i class="fas fa-edit text-xs"></i>
+                                        </button>
+                                    </div>
+                                    ${type.description ? `<p class="text-gray-500 text-xs mt-1">${type.description}</p>` : ''}
+                                    ${type.has_depreciation ? `<p class="text-orange-500 text-xs">折旧率: ${type.depreciation_rate}%</p>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Failed to load dashboard asset types:', error);
+                document.getElementById('dashboardTypesContainer').innerHTML = '<p class="text-red-500 text-sm">加载失败</p>';
+            }
+        }
+        
+        // 加载资产类型
+        async function loadAssetTypes() {
+            try {
+                assetTypes = await apiClient.getAssetTypes();
+                
+                const groupedTypes = assetTypes.reduce((acc, type) => {
+                    if (!acc[type.category]) acc[type.category] = [];
+                    acc[type.category].push(type);
+                    return acc;
+                }, {});
+                
+                document.getElementById('typesContainer').innerHTML = Object.entries(groupedTypes).map(([category, types]) => `
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                            <i class="fas ${getCategoryIcon(category)} mr-2 text-blue-500"></i>
+                            ${getCategoryName(category)} (${types.length}项)
+                        </h3>
+                        <div class="space-y-2">
+                            ${types.map(type => `
+                                <div class="bg-white rounded-lg p-4 shadow-sm flex justify-between items-center">
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">${type.name}</h4>
+                                        <p class="text-sm text-gray-500">${type.description || '暂无描述'}</p>
+                                        ${type.has_depreciation ? `<p class="text-xs text-orange-500 mt-1">折旧率: ${(type.depreciation_rate * 100).toFixed(1)}%</p>` : ''}
+                                    </div>
+                                    <button onclick="deleteAssetType(${type.id})" class="text-red-500 hover:text-red-700 p-2">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Failed to load asset types:', error);
+                showToast('加载资产类型失败', 'error');
+            }
+        }
+        
+        // 加载资产
+        async function loadAssets() {
+            try {
+                assets = await apiClient.getAssets();
+                
+                if (assets.length === 0) {
+                    document.getElementById('assetsContainer').innerHTML = `
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-coins text-4xl mb-4"></i>
+                            <p class="mb-4">还没有添加任何资产</p>
+                            <button onclick="document.getElementById('addAssetBtn').click()" class="bg-blue-500 text-white px-6 py-3 rounded-lg">
+                                <i class="fas fa-plus mr-2"></i>添加第一个资产
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                document.getElementById('assetsContainer').innerHTML = assets.map(asset => `
+                    <div class="bg-white rounded-lg p-4 shadow-sm mb-3 flex justify-between items-center">
+                        <div class="flex-1">
+                            <h4 class="font-medium text-gray-800">${asset.name}</h4>
+                            <p class="text-sm text-gray-500">${asset.type_name || '未知类型'}</p>
+                            <p class="text-lg font-bold text-green-600">￥${(asset.current_value || 0).toLocaleString()}</p>
+                        </div>
+                        <button onclick="deleteAsset(${asset.id})" class="text-red-500 hover:text-red-700 p-2">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Failed to load assets:', error);
+                showToast('加载资产失败', 'error');
+            }
+        }
+        
+        // 加载资产列表
+        async function loadAssets() {
+            try {
+                const assets = await apiClient.getAssets();
+                
+                if (assets.length === 0) {
+                    document.getElementById('assetsContainer').innerHTML = `
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-coins text-4xl mb-4"></i>
+                            <p>暂无资产记录</p>
+                            <p class="text-sm">点击上方按钮添加您的第一个资产</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                document.getElementById('assetsContainer').innerHTML = assets.map(asset => `
+                    <div class="bg-white rounded-lg p-4 shadow-sm mb-3 flex justify-between items-center">
+                        <div class="flex-1">
+                            <h4 class="font-medium text-gray-800">${asset.name}</h4>
+                            <p class="text-sm text-gray-500">${asset.asset_type_name || '未分类'}</p>
+                            <p class="text-lg font-bold text-green-600">￥${asset.current_value.toLocaleString()}</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="editAsset(${asset.id})" class="text-blue-500 hover:text-blue-700 p-2">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteAsset(${asset.id})" class="text-red-500 hover:text-red-700 p-2">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Failed to load assets:', error);
+                showToast('加载资产列表失败', 'error');
+            }
+        }
+        
+        // 加载负债列表
+        async function loadLiabilities() {
+            try {
+                const liabilities = await apiClient.getLiabilities();
+                
+                if (liabilities.length === 0) {
+                    document.getElementById('liabilitiesContainer').innerHTML = `
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-credit-card text-4xl mb-4"></i>
+                            <p>暂无负债记录</p>
+                            <p class="text-sm">点击上方按钮添加您的第一笔负债</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                document.getElementById('liabilitiesContainer').innerHTML = liabilities.map(liability => `
+                    <div class="bg-white rounded-lg p-4 shadow-sm mb-3">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex-1">
+                                <h4 class="font-medium text-gray-800">${liability.name}</h4>
+                                <p class="text-sm text-gray-500">${liability.type || '未分类'}</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button onclick="editLiability(${liability.id})" class="text-blue-500 hover:text-blue-700 p-2">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="deleteLiability(${liability.id})" class="text-red-500 hover:text-red-700 p-2">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span class="text-gray-500">剩余金额:</span>
+                                <span class="font-bold text-red-600">￥${liability.remaining_amount.toLocaleString()}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">利率:</span>
+                                <span class="font-medium">${(liability.interest_rate * 100).toFixed(2)}%</span>
+                            </div>
+                            ${liability.monthly_payment ? `
+                            <div>
+                                <span class="text-gray-500">月还款:</span>
+                                <span class="font-medium">￥${liability.monthly_payment.toLocaleString()}</span>
+                            </div>
+                            ` : ''}
+                            ${liability.end_date ? `
+                            <div>
+                                <span class="text-gray-500">到期日期:</span>
+                                <span class="font-medium">${liability.end_date}</span>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Failed to load liabilities:', error);
+                showToast('加载负债列表失败', 'error');
+            }
+        }
+        
+        // 加载资金流入
+        async function loadCashFlow() {
+            try {
+                // 初始化选项卡事件
+                initializeCashFlowTabs();
+                
+                // 加载预期收支数据
+                await loadPlannedCashFlow();
+                
+            } catch (error) {
+                console.error('Failed to load cash flow:', error);
+                showToast('加载资金流失败', 'error');
+            }
+        }
+        
+        // 初始化现金流选项卡
+        function initializeCashFlowTabs() {
+            const plannedTab = document.getElementById('plannedFlowTab');
+            const historicalTab = document.getElementById('historicalFlowTab');
+            const plannedContent = document.getElementById('plannedFlowContent');
+            const historicalContent = document.getElementById('historicalFlowContent');
+            
+            // 选项卡切换事件
+            plannedTab.addEventListener('click', () => {
+                plannedTab.classList.add('active');
+                historicalTab.classList.remove('active');
+                plannedContent.classList.remove('hidden');
+                historicalContent.classList.add('hidden');
+                loadPlannedCashFlow();
+            });
+            
+            historicalTab.addEventListener('click', () => {
+                historicalTab.classList.add('active');
+                plannedTab.classList.remove('active');
+                historicalContent.classList.remove('hidden');
+                plannedContent.classList.add('hidden');
+                loadHistoricalCashFlow();
+            });
+        }
+        
+        // 加载预期现金流
+        async function loadPlannedCashFlow() {
+            try {
+                const cashFlows = await apiClient.getCashFlows();
+                
+                if (cashFlows.length === 0) {
+                    document.getElementById('cashFlowContainer').innerHTML = `
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-chart-line text-4xl mb-4"></i>
+                            <p class="mb-4">还没有添加任何资金流入记录</p>
+                            <button onclick="document.getElementById('addCashFlowBtn').click()" class="bg-purple-500 text-white px-6 py-3 rounded-lg">
+                                <i class="fas fa-plus mr-2"></i>添加第一条记录
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // 按类型分组
+                const groupedFlows = {
+                    'one_time_income': [],
+                    'one_time_expense': [],
+                    'recurring_income': [],
+                    'recurring_expense': []
+                };
+                
+                cashFlows.forEach(flow => {
+                    const key = flow.is_recurring ? 
+                        (flow.type === 'income' ? 'recurring_income' : 'recurring_expense') :
+                        (flow.type === 'income' ? 'one_time_income' : 'one_time_expense');
+                    groupedFlows[key].push(flow);
+                });
+                
+                document.getElementById('cashFlowContainer').innerHTML = `
+                    <div class="space-y-6">
+                        <!-- 预期收入 -->
+                        <div class="bg-white rounded-lg p-4 shadow-sm">
+                            <h3 class="text-lg font-semibold text-blue-600 mb-3 flex items-center">
+                                <i class="fas fa-sync mr-2"></i>预期收入 (${groupedFlows.recurring_income.length}项)
+                                <span class="text-sm text-gray-500 ml-2">比如工资</span>
+                            </h3>
+                            <div class="space-y-2">
+                                ${groupedFlows.recurring_income.map(flow => renderCashFlowItem(flow)).join('')}
+                                ${groupedFlows.recurring_income.length === 0 ? '<p class="text-gray-500 text-sm">暂无记录</p>' : ''}
+                            </div>
+                        </div>
+                        
+                        <!-- 预期支出 -->
+                        <div class="bg-white rounded-lg p-4 shadow-sm">
+                            <h3 class="text-lg font-semibold text-orange-600 mb-3 flex items-center">
+                                <i class="fas fa-calendar-alt mr-2"></i>预期支出 (${groupedFlows.recurring_expense.length}项)
+                                <span class="text-sm text-gray-500 ml-2">比如房贷</span>
+                            </h3>
+                            <div class="space-y-2">
+                                ${groupedFlows.recurring_expense.map(flow => renderCashFlowItem(flow)).join('')}
+                                ${groupedFlows.recurring_expense.length === 0 ? '<p class="text-gray-500 text-sm">暂无记录</p>' : ''}
+                            </div>
+                        </div>
+                        
+                        <!-- 一次性收入 -->
+                        <div class="bg-white rounded-lg p-4 shadow-sm">
+                            <h3 class="text-lg font-semibold text-green-600 mb-3 flex items-center">
+                                <i class="fas fa-arrow-up mr-2"></i>一次性收入 (${groupedFlows.one_time_income.length}项)
+                            </h3>
+                            <div class="space-y-2">
+                                ${groupedFlows.one_time_income.map(flow => renderCashFlowItem(flow)).join('')}
+                                ${groupedFlows.one_time_income.length === 0 ? '<p class="text-gray-500 text-sm">暂无记录</p>' : ''}
+                            </div>
+                        </div>
+                        
+                        <!-- 一次性支出 -->
+                        <div class="bg-white rounded-lg p-4 shadow-sm">
+                            <h3 class="text-lg font-semibold text-red-600 mb-3 flex items-center">
+                                <i class="fas fa-arrow-down mr-2"></i>一次性支出 (${groupedFlows.one_time_expense.length}项)
+                            </h3>
+                            <div class="space-y-2">
+                                ${groupedFlows.one_time_expense.map(flow => renderCashFlowItem(flow)).join('')}
+                                ${groupedFlows.one_time_expense.length === 0 ? '<p class="text-gray-500 text-sm">暂无记录</p>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Failed to load cash flows:', error);
+                showToast('加载资金流入失败', 'error');
+            }
+        }
+        
+        // 渲染资金流入项目
+        function renderCashFlowItem(flow) {
+            const isIncome = flow.type === 'income';
+            const colorClass = isIncome ? 'text-green-600' : 'text-red-600';
+            const iconClass = isIncome ? 'fa-plus-circle' : 'fa-minus-circle';
+            const recurringText = flow.is_recurring ? `(每${getRecurringText(flow.recurring_type)})` : '';
+            
+            return `
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <div class="flex items-center">
+                        <i class="fas ${iconClass} ${colorClass} mr-3"></i>
+                        <div>
+                            <h4 class="font-medium text-gray-800">${flow.description}</h4>
+                            <p class="text-sm text-gray-500">
+                                ${flow.date} ${recurringText}
+                                ${flow.category ? ` · ${flow.category}` : ''}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="font-bold ${colorClass} mr-2">
+                            ${isIncome ? '+' : '-'}￥${Math.abs(flow.amount).toLocaleString()}
+                        </span>
+                        <button onclick="editCashFlow(${flow.id})" class="text-gray-400 hover:text-blue-500 p-1 mr-1">
+                            <i class="fas fa-edit text-sm"></i>
+                        </button>
+                        <button onclick="deleteCashFlow(${flow.id})" class="text-gray-400 hover:text-red-500 p-1">
+                            <i class="fas fa-trash text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 获取定期类型文本
+        function getRecurringText(type) {
+            const texts = {
+                'daily': '天',
+                'weekly': '周',
+                'monthly': '月',
+                'quarterly': '季度',
+                'yearly': '年'
+            };
+            return texts[type] || type;
+        }
+        
+        // 全局历史现金流图表实例
+        let historicalFlowChartInstance = null;
+        
+        // 加载历史现金流数据
+        async function loadHistoricalCashFlow() {
+            try {
+                const [historyData, monthlyData] = await Promise.all([
+                    apiClient.getCashFlowHistory(),
+                    apiClient.getHistoricalMonthlyFlow()
+                ]);
+                
+                // 渲染历史现金流图表
+                renderHistoricalFlowChart(monthlyData);
+                
+                // 渲染历史记录列表
+                renderHistoricalFlowList(historyData);
+                
+            } catch (error) {
+                console.error('Failed to load historical cash flow:', error);
+                showToast('加载历史数据失败', 'error');
+            }
+        }
+        
+        // 渲染历史现金流图表
+        function renderHistoricalFlowChart(data) {
+            const ctx = document.getElementById('historicalFlowChart');
+            if (!ctx) return;
+            
+            // 销毁旧的图表实例
+            if (historicalFlowChartInstance) {
+                historicalFlowChartInstance.destroy();
+            }
+            
+            // 数据处理
+            const months = [...new Set(data.map(item => item.month))].sort().slice(-12);
+            const incomeData = months.map(month => {
+                const item = data.find(d => d.month === month && d.type === 'income');
+                return item ? item.total_amount : 0;
+            });
+            const expenseData = months.map(month => {
+                const item = data.find(d => d.month === month && d.type === 'expense');
+                return item ? item.total_amount : 0;
+            });
+            
+            historicalFlowChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: months.map(m => m.substring(5)), // 只显示月份
+                    datasets: [{
+                        label: '实际收入',
+                        data: incomeData,
+                        borderColor: 'rgb(34, 197, 94)',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: '实际支出',
+                        data: expenseData,
+                        borderColor: 'rgb(239, 68, 68)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '￥' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ￥' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 渲染历史记录列表
+        function renderHistoricalFlowList(data) {
+            const container = document.getElementById('historicalFlowList');
+            if (!container) return;
+            
+            if (data.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-history text-4xl mb-4"></i>
+                        <p>暂无历史记录</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // 按月份分组
+            const groupedData = data.reduce((acc, item) => {
+                const month = item.date.substring(0, 7);
+                if (!acc[month]) acc[month] = [];
+                acc[month].push(item);
+                return acc;
+            }, {});
+            
+            container.innerHTML = Object.entries(groupedData)
+                .sort(([a], [b]) => b.localeCompare(a))
+                .slice(0, 6) // 只显示最近6个月
+                .map(([month, items]) => `
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-gray-700 mb-2 flex items-center">
+                            <i class="fas fa-calendar mr-2 text-blue-500"></i>
+                            ${month} (${items.length}笔)
+                        </h4>
+                        <div class="space-y-2">
+                            ${items.map(item => renderHistoricalFlowItem(item)).join('')}
+                        </div>
+                    </div>
+                `).join('');
+        }
+        
+        // 渲染历史现金流项目
+        function renderHistoricalFlowItem(item) {
+            const isIncome = item.type === 'income';
+            const colorClass = isIncome ? 'text-green-600' : 'text-red-600';
+            const iconClass = isIncome ? 'fa-plus-circle' : 'fa-minus-circle';
+            
+            return `
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <div class="flex items-center">
+                        <i class="fas ${iconClass} ${colorClass} mr-3"></i>
+                        <div>
+                            <h5 class="font-medium text-gray-800">${item.description}</h5>
+                            <p class="text-sm text-gray-500">
+                                ${item.date}
+                                ${item.category ? ` · ${item.category}` : ''}
+                            </p>
+                        </div>
+                    </div>
+                    <span class="font-bold ${colorClass}">
+                        ${isIncome ? '+' : '-'}￥${Math.abs(item.amount).toLocaleString()}
+                    </span>
+                </div>
+            `;
+        }
+        
+        // 加载负债列表
+        async function loadLiabilities() {
+            try {
+                const liabilities = await apiClient.getLiabilities();
+                
+                if (liabilities.length === 0) {
+                    document.getElementById('liabilitiesContainer').innerHTML = `
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-credit-card text-4xl mb-4"></i>
+                            <p>暂无负债记录</p>
+                            <p class="text-sm">点击上方按钮添加您的第一笔负债</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // 按类型分组
+                const groupedLiabilities = liabilities.reduce((acc, liability) => {
+                    const type = liability.liability_type || '其他';
+                    if (!acc[type]) acc[type] = [];
+                    acc[type].push(liability);
+                    return acc;
+                }, {});
+                
+                document.getElementById('liabilitiesContainer').innerHTML = Object.entries(groupedLiabilities).map(([type, items]) => `
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                            <i class="fas fa-credit-card mr-2 text-red-500"></i>
+                            ${type} (${items.length}项)
+                        </h3>
+                        <div class="space-y-3">
+                            ${items.map(liability => `
+                                <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                                    <div class="flex justify-between items-start">
+                                        <div class="flex-1">
+                                            <h4 class="font-semibold text-gray-800 mb-2">${liability.description}</h4>
+                                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                                <div>
+                                                    <span class="text-gray-500">总金额：</span>
+                                                    <span class="font-medium text-red-600">￥${liability.total_amount.toLocaleString()}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="text-gray-500">剩余金额：</span>
+                                                    <span class="font-medium text-red-600">￥${liability.remaining_amount.toLocaleString()}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="text-gray-500">月供：</span>
+                                                    <span class="font-medium">￥${liability.monthly_payment.toLocaleString()}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="text-gray-500">利率：</span>
+                                                    <span class="font-medium">${liability.interest_rate}%</span>
+                                                </div>
+                                                ${liability.start_date ? `
+                                                <div>
+                                                    <span class="text-gray-500">开始日期：</span>
+                                                    <span class="font-medium">${liability.start_date}</span>
+                                                </div>
+                                                ` : ''}
+                                                ${liability.end_date ? `
+                                                <div>
+                                                    <span class="text-gray-500">结束日期：</span>
+                                                    <span class="font-medium text-orange-600">${liability.end_date}</span>
+                                                </div>
+                                                ` : ''}
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col space-y-2 ml-4">
+                                            <button onclick="editLiability(${liability.id})" class="text-blue-500 hover:text-blue-600 p-2">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button onclick="deleteLiability(${liability.id})" class="text-red-500 hover:text-red-600 p-2">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Failed to load liabilities:', error);
+                showToast('加载负债列表失败', 'error');
+            }
+        }
+        
+        // 删除负债
+        async function deleteLiability(id) {
+            if (!confirm('确定要删除这个负债吗？')) return;
+            
+            try {
+                await apiClient.deleteLiability(id);
+                showToast('删除成功');
+                loadLiabilities();
+                loadDashboard(); // 刷新仪表板数据
+            } catch (error) {
+                showToast('删除失败', 'error');
+            }
+        }
+        
+        // 工具函数
+        function getCategoryName(category) {
+            const names = {
+                'fixed': '固定资产',
+                'liquid': '流动资产', 
+                'consumer': '消费品'
+            };
+            return names[category] || category;
+        }
+        
+        function getCategoryIcon(category) {
+            const icons = {
+                'fixed': 'fa-building',
+                'liquid': 'fa-tint',
+                'consumer': 'fa-shopping-cart'
+            };
+            return icons[category] || 'fa-tag';
+        }
+        
+        // 渲染资产分布饥图
+        function renderAssetsChart(assetsData) {
+            const ctx = document.getElementById('assetsChart');
+            if (!ctx || assetsData.length === 0) {
+                if (ctx) {
+                    ctx.getContext('2d').clearRect(0, 0, ctx.width, ctx.height);
+                    const context = ctx.getContext('2d');
+                    context.font = '16px Arial';
+                    context.fillStyle = '#9CA3AF';
+                    context.textAlign = 'center';
+                    context.fillText('暂无资产数据', ctx.width/2, ctx.height/2);
+                }
+                return;
+            }
+            
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: assetsData.map(item => getCategoryName(item.category)),
+                    datasets: [{
+                        data: assetsData.map(item => item.total_value),
+                        backgroundColor: [
+                            '#3B82F6', // 蓝色
+                            '#10B981', // 绿色
+                            '#F59E0B', // 黄色
+                            '#EF4444', // 红色
+                            '#8B5CF6', // 紫色
+                            '#06B6D4', // 青色
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.parsed;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${context.label}: ￥${value.toLocaleString()} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 渲染负债分布饥图
+        function renderLiabilitiesChart(liabilitiesData) {
+            const ctx = document.getElementById('liabilitiesChart');
+            if (!ctx || liabilitiesData.length === 0) {
+                if (ctx) {
+                    ctx.getContext('2d').clearRect(0, 0, ctx.width, ctx.height);
+                    const context = ctx.getContext('2d');
+                    context.font = '16px Arial';
+                    context.fillStyle = '#9CA3AF';
+                    context.textAlign = 'center';
+                    context.fillText('暂无负债数据', ctx.width/2, ctx.height/2);
+                }
+                return;
+            }
+            
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: liabilitiesData.map(item => item.liability_type),
+                    datasets: [{
+                        data: liabilitiesData.map(item => item.total_amount),
+                        backgroundColor: [
+                            '#EF4444', // 红色
+                            '#F59E0B', // 黄色
+                            '#8B5CF6', // 紫色
+                            '#06B6D4', // 青色
+                            '#10B981', // 绿色
+                            '#3B82F6', // 蓝色
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.parsed;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${context.label}: ￥${value.toLocaleString()} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 删除资产类型
+        async function deleteAssetType(id) {
+            if (!confirm('确定要删除这个资产类型吗？')) return;
+            
+            try {
+                await apiClient.deleteAssetType(id);
+                showToast('删除成功');
+                loadAssetTypes();
+            } catch (error) {
+                showToast('删除失败', 'error');
+            }
+        }
+        
+        // 删除资产
+        async function deleteAsset(id) {
+            if (!confirm('确定要删除这个资产吗？')) return;
+            
+            try {
+                await apiClient.deleteAsset(id);
+                showToast('删除成功');
+                loadAssets();
+                loadDashboard(); // 刷新仪表板数据
+            } catch (error) {
+                showToast('删除失败', 'error');
+            }
+        }
+        
+        // 编辑资金流入记录
+        async function editCashFlow(id) {
+            try {
+                const cashFlows = await apiClient.getCashFlows();
+                const flow = cashFlows.find(f => f.id === id);
+                if (!flow) {
+                    showToast('记录不存在', 'error');
+                    return;
+                }
+                
+                showModal(`
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold">编辑资金流入记录</h3>
+                            <button onclick="hideModal()" class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <form id="editCashFlowForm" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">类型</label>
+                                <select name="type" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                    <option value="income" ${flow.type === 'income' ? 'selected' : ''}>收入</option>
+                                    <option value="expense" ${flow.type === 'expense' ? 'selected' : ''}>支出</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">描述</label>
+                                <input type="text" name="description" required value="${flow.description}" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">金额 (￥)</label>
+                                <input type="number" name="amount" required min="0" step="0.01" value="${flow.amount}" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">日期</label>
+                                <input type="date" name="date" required value="${flow.date}" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">分类</label>
+                                <input type="text" name="category" value="${flow.category || ''}" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="is_recurring" ${flow.is_recurring ? 'checked' : ''} class="mr-2">
+                                    <span class="text-sm text-gray-700">定期重复</span>
+                                </label>
+                            </div>
+                            <div id="editRecurringOptions" class="${flow.is_recurring ? '' : 'hidden'}">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">重复频率</label>
+                                <select name="recurring_type" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                    <option value="daily" ${flow.recurring_type === 'daily' ? 'selected' : ''}>每天</option>
+                                    <option value="weekly" ${flow.recurring_type === 'weekly' ? 'selected' : ''}>每周</option>
+                                    <option value="monthly" ${flow.recurring_type === 'monthly' ? 'selected' : ''}>每月</option>
+                                    <option value="quarterly" ${flow.recurring_type === 'quarterly' ? 'selected' : ''}>每季度</option>
+                                    <option value="yearly" ${flow.recurring_type === 'yearly' ? 'selected' : ''}>每年</option>
+                                </select>
+                            </div>
+                            <div class="flex space-x-3 pt-4">
+                                <button type="button" onclick="hideModal()" class="flex-1 py-3 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">取消</button>
+                                <button type="submit" class="flex-1 py-3 px-4 bg-purple-500 text-white rounded-lg hover:bg-purple-600">保存</button>
+                            </div>
+                        </form>
+                    </div>
+                `);
+                
+                // 定期选项切换
+                document.querySelector('#editCashFlowForm input[name="is_recurring"]').addEventListener('change', (e) => {
+                    document.getElementById('editRecurringOptions').classList.toggle('hidden', !e.target.checked);
+                });
+                
+                // 表单提交
+                document.getElementById('editCashFlowForm').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target);
+                    const data = {
+                        type: formData.get('type'),
+                        description: formData.get('description'),
+                        amount: parseFloat(formData.get('amount')),
+                        date: formData.get('date'),
+                        category: formData.get('category') || null,
+                        is_recurring: formData.get('is_recurring') ? 1 : 0,
+                        recurring_type: formData.get('is_recurring') ? formData.get('recurring_type') : null
+                    };
+                    
+                    try {
+                        await apiClient.updateCashFlow(id, data);
+                        hideModal();
+                        showToast('修改成功');
+                        loadCashFlow();
+                    } catch (error) {
+                        showToast('修改失败', 'error');
+                    }
+                });
+            } catch (error) {
+                showToast('加载记录失败', 'error');
+            }
+        }
+        
+        // 删除资金流入记录
+        async function deleteCashFlow(id) {
+            if (!confirm('确定要删除这条记录吗？')) return;
+            
+            try {
+                await apiClient.deleteCashFlow(id);
+                showToast('删除成功');
+                loadCashFlow();
+            } catch (error) {
+                showToast('删除失败', 'error');
+            }
+        }
+        
+        // 显示添加负债模态框
+        function showAddLiabilityModal() {
+            showModal(`
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">添加负债</h3>
+                        <button onclick="hideModal()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <form id="addLiabilityForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">负债类型</label>
+                            <select name="liability_type" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                                <option value="">请选择负债类型</option>
+                                <option value="房贷">房贷</option>
+                                <option value="车贷">车贷</option>
+                                <option value="信用卡">信用卡</option>
+                                <option value="个人借款">个人借款</option>
+                                <option value="其他">其他</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">描述</label>
+                            <input type="text" name="description" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">总金额</label>
+                            <input type="number" name="total_amount" required min="0" step="0.01" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">剩余金额</label>
+                            <input type="number" name="remaining_amount" required min="0" step="0.01" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">月供</label>
+                            <input type="number" name="monthly_payment" required min="0" step="0.01" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">利率 (%)</label>
+                            <input type="number" name="interest_rate" required min="0" step="0.01" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">开始日期</label>
+                            <input type="date" name="start_date" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">结束日期</label>
+                            <input type="date" name="end_date" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                        </div>
+                        <div class="flex space-x-3 pt-4">
+                            <button type="button" onclick="hideModal()" class="flex-1 py-3 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">取消</button>
+                            <button type="submit" class="flex-1 py-3 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600">添加</button>
+                        </div>
+                    </form>
+                </div>
+            `);
+            
+            document.getElementById('addLiabilityForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const data = {
+                    liability_type: formData.get('liability_type'),
+                    description: formData.get('description'),
+                    total_amount: parseFloat(formData.get('total_amount')),
+                    remaining_amount: parseFloat(formData.get('remaining_amount')),
+                    monthly_payment: parseFloat(formData.get('monthly_payment')),
+                    interest_rate: parseFloat(formData.get('interest_rate')),
+                    start_date: formData.get('start_date') || null,
+                    end_date: formData.get('end_date') || null
+                };
+                
+                try {
+                    await apiClient.createLiability(data);
+                    hideModal();
+                    showToast('添加成功');
+                    loadLiabilities();
+                    loadDashboard(); // 刷新仪表板数据
+                } catch (error) {
+                    showToast('添加失败', 'error');
+                }
+            });
+        }
+        
+        // 删除资产
+        async function deleteAsset(id) {
+            if (!confirm('确定要删除这个资产吗？')) return;
+            
+            try {
+                await apiClient.deleteAsset(id);
+                showToast('删除成功');
+                loadAssets();
+                loadDashboard(); // 刷新仪表板数据
+            } catch (error) {
+                showToast('删除失败', 'error');
+            }
+        }
+        
+        // 删除负债
+        async function deleteLiability(id) {
+            if (!confirm('确定要删除这个负债吗？')) return;
+            
+            try {
+                await apiClient.deleteLiability(id);
+                showToast('删除成功');
+                loadLiabilities();
+                loadDashboard(); // 刷新仪表板数据
+            } catch (error) {
+                showToast('删除失败', 'error');
+            }
+        }
+        
+        // 编辑资产
+        async function editAsset(id) {
+            try {
+                const assets = await apiClient.getAssets();
+                const asset = assets.find(a => a.id === id);
+                if (!asset) {
+                    showToast('资产不存在', 'error');
+                    return;
+                }
+                
+                const assetTypes = await apiClient.getAssetTypes();
+                
+                showModal(`
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold">编辑资产</h3>
+                            <button onclick="hideModal()" class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <form id="editAssetForm" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">资产名称</label>
+                                <input type="text" name="name" required value="${asset.name}" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">资产类型</label>
+                                <select name="asset_type_id" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="">请选择资产类型</option>
+                                    ${assetTypes.map(type => `
+                                        <option value="${type.id}" ${type.id === asset.asset_type_id ? 'selected' : ''}>
+                                            ${type.name} (${getCategoryName(type.category)})
+                                        </option>
+                                    `).join('')}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">当前价值</label>
+                                <input type="number" name="current_value" required min="0" step="0.01" value="${asset.current_value}" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">购买价值</label>
+                                <input type="number" name="purchase_value" required min="0" step="0.01" value="${asset.purchase_value}" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">购买日期</label>
+                                <input type="date" name="purchase_date" required value="${asset.purchase_date}" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">预期收益率 (%)</label>
+                                <input type="number" name="expected_return_rate" min="0" step="0.01" value="${asset.expected_return_rate || 0}" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">描述</label>
+                                <textarea name="description" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">${asset.description || ''}</textarea>
+                            </div>
+                            <div class="flex space-x-3 pt-4">
+                                <button type="button" onclick="hideModal()" class="flex-1 py-3 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">取消</button>
+                                <button type="submit" class="flex-1 py-3 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600">保存</button>
+                            </div>
+                        </form>
+                    </div>
+                `);
+                
+                document.getElementById('editAssetForm').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target);
+                    const data = {
+                        name: formData.get('name'),
+                        asset_type_id: parseInt(formData.get('asset_type_id')),
+                        current_value: parseFloat(formData.get('current_value')),
+                        purchase_value: parseFloat(formData.get('purchase_value')),
+                        purchase_date: formData.get('purchase_date'),
+                        expected_return_rate: parseFloat(formData.get('expected_return_rate')) || 0,
+                        description: formData.get('description') || null
+                    };
+                    
+                    try {
+                        await apiClient.updateAsset(id, data);
+                        hideModal();
+                        showToast('修改成功');
+                        loadAssets();
+                        loadDashboard(); // 刷新仪表板数据
+                    } catch (error) {
+                        showToast('修改失败', 'error');
+                    }
+                });
+                
+            } catch (error) {
+                showToast('加载资产信息失败', 'error');
+            }
+        }
+        
+        // 编辑负债
+        async function editLiability(id) {
+            try {
+                const liabilities = await apiClient.getLiabilities();
+                const liability = liabilities.find(l => l.id === id);
+                if (!liability) {
+                    showToast('负债不存在', 'error');
+                    return;
+                }
+                
+                showModal(`
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold">编辑负债</h3>
+                            <button onclick="hideModal()" class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <form id="editLiabilityForm" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">负债类型</label>
+                                <select name="liability_type" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                                    <option value="">请选择负债类型</option>
+                                    <option value="房贷" ${liability.liability_type === '房贷' ? 'selected' : ''}>房贷</option>
+                                    <option value="车贷" ${liability.liability_type === '车贷' ? 'selected' : ''}>车贷</option>
+                                    <option value="信用卡" ${liability.liability_type === '信用卡' ? 'selected' : ''}>信用卡</option>
+                                    <option value="个人借款" ${liability.liability_type === '个人借款' ? 'selected' : ''}>个人借款</option>
+                                    <option value="其他" ${liability.liability_type === '其他' ? 'selected' : ''}>其他</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">描述</label>
+                                <input type="text" name="description" required value="${liability.description}" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">总金额</label>
+                                <input type="number" name="total_amount" required min="0" step="0.01" value="${liability.total_amount}" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">剩余金额</label>
+                                <input type="number" name="remaining_amount" required min="0" step="0.01" value="${liability.remaining_amount}" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">月供</label>
+                                <input type="number" name="monthly_payment" required min="0" step="0.01" value="${liability.monthly_payment}" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">利率 (%)</label>
+                                <input type="number" name="interest_rate" required min="0" step="0.01" value="${liability.interest_rate}" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">开始日期</label>
+                                <input type="date" name="start_date" value="${liability.start_date || ''}" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">结束日期</label>
+                                <input type="date" name="end_date" value="${liability.end_date || ''}" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                            </div>
+                            <div class="flex space-x-3 pt-4">
+                                <button type="button" onclick="hideModal()" class="flex-1 py-3 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">取消</button>
+                                <button type="submit" class="flex-1 py-3 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600">保存</button>
+                            </div>
+                        </form>
+                    </div>
+                `);
+                
+                document.getElementById('editLiabilityForm').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target);
+                    const data = {
+                        liability_type: formData.get('liability_type'),
+                        description: formData.get('description'),
+                        total_amount: parseFloat(formData.get('total_amount')),
+                        remaining_amount: parseFloat(formData.get('remaining_amount')),
+                        monthly_payment: parseFloat(formData.get('monthly_payment')),
+                        interest_rate: parseFloat(formData.get('interest_rate')),
+                        start_date: formData.get('start_date') || null,
+                        end_date: formData.get('end_date') || null
+                    };
+                    
+                    try {
+                        await apiClient.updateLiability(id, data);
+                        hideModal();
+                        showToast('修改成功');
+                        loadLiabilities();
+                        loadDashboard(); // 刷新仪表板数据
+                    } catch (error) {
+                        showToast('修改失败', 'error');
+                    }
+                });
+                
+            } catch (error) {
+                showToast('加载负债信息失败', 'error');
+            }
+        }
+        
+        // 编辑资产类型
+        async function editAssetType(id) {
+            try {
+                const assetTypes = await apiClient.getAssetTypes();
+                const assetType = assetTypes.find(t => t.id === id);
+                if (!assetType) {
+                    showToast('资产类型不存在', 'error');
+                    return;
+                }
+                
+                showModal(`
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold">编辑资产类型</h3>
+                            <button onclick="hideModal()" class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <form id="editAssetTypeForm" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">类型名称</label>
+                                <input type="text" name="name" required value="${assetType.name}" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">分类</label>
+                                <select name="category" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option value="">请选择分类</option>
+                                    <option value="fixed" ${assetType.category === 'fixed' ? 'selected' : ''}>固定资产</option>
+                                    <option value="liquid" ${assetType.category === 'liquid' ? 'selected' : ''}>流动资产</option>
+                                    <option value="consumer" ${assetType.category === 'consumer' ? 'selected' : ''}>消费品</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="has_depreciation" ${assetType.has_depreciation ? 'checked' : ''} class="mr-2">
+                                    <span class="text-sm text-gray-700">有折旧</span>
+                                </label>
+                            </div>
+                            <div id="editDepreciationRate" class="${assetType.has_depreciation ? '' : 'hidden'}">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">折旧率 (%)</label>
+                                <input type="number" name="depreciation_rate" min="0" step="0.01" value="${assetType.depreciation_rate || 0}" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">描述</label>
+                                <textarea name="description" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">${assetType.description || ''}</textarea>
+                            </div>
+                            <div class="flex space-x-3 pt-4">
+                                <button type="button" onclick="hideModal()" class="flex-1 py-3 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">取消</button>
+                                <button type="submit" class="flex-1 py-3 px-4 bg-green-500 text-white rounded-lg hover:bg-green-600">保存</button>
+                            </div>
+                        </form>
+                    </div>
+                `);
+                
+                // 折旧选项切换
+                document.querySelector('#editAssetTypeForm input[name="has_depreciation"]').addEventListener('change', (e) => {
+                    document.getElementById('editDepreciationRate').classList.toggle('hidden', !e.target.checked);
+                });
+                
+                document.getElementById('editAssetTypeForm').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target);
+                    const data = {
+                        name: formData.get('name'),
+                        category: formData.get('category'),
+                        has_depreciation: formData.get('has_depreciation') ? 1 : 0,
+                        depreciation_rate: formData.get('has_depreciation') ? parseFloat(formData.get('depreciation_rate')) || 0 : 0,
+                        description: formData.get('description') || null
+                    };
+                    
+                    try {
+                        await apiClient.updateAssetType(id, data);
+                        hideModal();
+                        showToast('修改成功');
+                        loadDashboardAssetTypes();
+                        loadDashboard(); // 刷新仪表板数据
+                    } catch (error) {
+                        showToast('修改失败', 'error');
+                    }
+                });
+                
+            } catch (error) {
+                showToast('加载资产类型信息失败', 'error');
+            }
+        }
+        
+        // 显示资产类型管理页面
+        async function showAssetTypesManagement() {
+            try {
+                const assetTypes = await apiClient.getAssetTypes();
+                
+                const groupedTypes = assetTypes.reduce((acc, type) => {
+                    if (!acc[type.category]) acc[type.category] = [];
+                    acc[type.category].push(type);
+                    return acc;
+                }, {});
+                
+                showModal(`
+                    <div class="p-6 max-w-4xl">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold">资产类型管理</h3>
+                            <div class="flex space-x-2">
+                                <button onclick="showAddAssetTypeModal()" class="bg-green-500 text-white px-4 py-2 rounded-lg text-sm flex items-center">
+                                    <i class="fas fa-plus mr-2"></i>添加类型
+                                </button>
+                                <button onclick="hideModal()" class="text-gray-500 hover:text-gray-700">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="space-y-6 max-h-96 overflow-y-auto">
+                            ${Object.entries(groupedTypes).map(([category, types]) => `
+                                <div>
+                                    <h4 class="text-md font-semibold text-gray-700 mb-3 flex items-center">
+                                        <i class="fas ${getCategoryIcon(category)} mr-2 text-blue-500"></i>
+                                        ${getCategoryName(category)} (${types.length}项)
+                                    </h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        ${types.map(type => `
+                                            <div class="bg-gray-50 rounded-lg p-3 border">
+                                                <div class="flex justify-between items-start">
+                                                    <div class="flex-1">
+                                                        <h5 class="font-medium text-gray-800">${type.name}</h5>
+                                                        ${type.description ? `<p class="text-gray-500 text-sm mt-1">${type.description}</p>` : ''}
+                                                        ${type.has_depreciation ? `<p class="text-orange-500 text-xs mt-1">折旧率: ${type.depreciation_rate}%</p>` : ''}
+                                                    </div>
+                                                    <div class="flex space-x-1 ml-2">
+                                                        <button onclick="editAssetType(${type.id})" class="text-blue-500 hover:text-blue-600 p-1">
+                                                            <i class="fas fa-edit text-sm"></i>
+                                                        </button>
+                                                        <button onclick="deleteAssetType(${type.id})" class="text-red-500 hover:text-red-600 p-1">
+                                                            <i class="fas fa-trash text-sm"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `);
+                
+            } catch (error) {
+                showToast('加载资产类型失败', 'error');
+            }
+        }
+        
+        // 删除资产类型
+        async function deleteAssetType(id) {
+            if (!confirm('确定要删除这个资产类型吗？注意：删除后使用该类型的资产将显示为未分类。')) return;
+            
+            try {
+                await apiClient.deleteAssetType(id);
+                showToast('删除成功');
+                showAssetTypesManagement(); // 刷新管理页面
+                loadDashboard(); // 刷新仪表板数据
+            } catch (error) {
+                showToast('删除失败', 'error');
+            }
+        }
+        
+        // 显示添加资产类型模态框
+        function showAddAssetTypeModal() {
+            showModal(`
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">添加资产类型</h3>
+                        <button onclick="hideModal()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <form id="addAssetTypeForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">类型名称</label>
+                            <input type="text" name="name" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">分类</label>
+                            <select name="category" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                <option value="">请选择分类</option>
+                                <option value="fixed">固定资产</option>
+                                <option value="liquid">流动资产</option>
+                                <option value="consumer">消费品</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="has_depreciation" class="mr-2">
+                                <span class="text-sm text-gray-700">有折旧</span>
+                            </label>
+                        </div>
+                        <div id="addDepreciationRate" class="hidden">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">折旧率 (%)</label>
+                            <input type="number" name="depreciation_rate" min="0" step="0.01" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">描述</label>
+                            <textarea name="description" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"></textarea>
+                        </div>
+                        <div class="flex space-x-3 pt-4">
+                            <button type="button" onclick="hideModal()" class="flex-1 py-3 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">取消</button>
+                            <button type="submit" class="flex-1 py-3 px-4 bg-green-500 text-white rounded-lg hover:bg-green-600">添加</button>
+                        </div>
+                    </form>
+                </div>
+            `);
+            
+            // 折旧选项切换
+            document.querySelector('#addAssetTypeForm input[name="has_depreciation"]').addEventListener('change', (e) => {
+                document.getElementById('addDepreciationRate').classList.toggle('hidden', !e.target.checked);
+            });
+            
+            document.getElementById('addAssetTypeForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const data = {
+                    name: formData.get('name'),
+                    category: formData.get('category'),
+                    has_depreciation: formData.get('has_depreciation') ? 1 : 0,
+                    depreciation_rate: formData.get('has_depreciation') ? parseFloat(formData.get('depreciation_rate')) || 0 : 0,
+                    description: formData.get('description') || null
+                };
+                
+                try {
+                    await apiClient.createAssetType(data);
+                    hideModal();
+                    showToast('添加成功');
+                    showAssetTypesManagement(); // 刷新管理页面
+                    loadDashboard(); // 刷新仪表板数据
+                } catch (error) {
+                    showToast('添加失败', 'error');
+                }
+            });
+        }
+        
+        // 事件监听器
+        document.addEventListener('DOMContentLoaded', () => {
+            // 导航按钮
+            document.getElementById('dashboardBtn').addEventListener('click', () => showPage('dashboard'));
+            document.getElementById('assetsBtn').addEventListener('click', () => showPage('assets'));
+            document.getElementById('liabilitiesBtn').addEventListener('click', () => showPage('liabilities'));
+            document.getElementById('cashFlowBtn').addEventListener('click', () => showPage('cashFlow'));
+            
+            // 添加按钮
+            document.getElementById('addAssetBtn').addEventListener('click', showAddAssetModal);
+            document.getElementById('addLiabilityBtn').addEventListener('click', showAddLiabilityModal);
+            document.getElementById('addCashFlowBtn').addEventListener('click', showAddCashFlowModal);
+            
+            // 模态框关闭
+            document.getElementById('modal').addEventListener('click', (e) => {
+                if (e.target.id === 'modal') hideModal();
+            });
+            
+            // 初始化
+            loadDashboard();
+        });
+        
+        // 显示添加资产类型模态框
+        function showAddTypeModal() {
+            showModal(`
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">添加资产类型</h3>
+                        <button onclick="hideModal()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <form id="addTypeForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">类型名称</label>
+                            <input type="text" name="name" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">分类</label>
+                            <select name="category" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">请选择分类</option>
+                                <option value="fixed">固定资产</option>
+                                <option value="liquid">流动资产</option>
+                                <option value="consumer">消费品</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">描述</label>
+                            <textarea name="description" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                        </div>
+                        <div>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="has_depreciation" class="mr-2">
+                                <span class="text-sm text-gray-700">支持折旧</span>
+                            </label>
+                        </div>
+                        <div id="depreciationRate" class="hidden">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">年折旧率 (%)</label>
+                            <input type="number" name="depreciation_rate" min="0" max="100" step="0.1" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div class="flex space-x-3 pt-4">
+                            <button type="button" onclick="hideModal()" class="flex-1 py-3 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">取消</button>
+                            <button type="submit" class="flex-1 py-3 px-4 bg-green-500 text-white rounded-lg hover:bg-green-600">添加</button>
+                        </div>
+                    </form>
+                </div>
+            `);
+            
+            // 折旧选项切换
+            document.querySelector('input[name="has_depreciation"]').addEventListener('change', (e) => {
+                document.getElementById('depreciationRate').classList.toggle('hidden', !e.target.checked);
+            });
+            
+            // 表单提交
+            document.getElementById('addTypeForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const data = {
+                    name: formData.get('name'),
+                    category: formData.get('category'),
+                    description: formData.get('description'),
+                    has_depreciation: formData.get('has_depreciation') ? 1 : 0,
+                    depreciation_rate: formData.get('has_depreciation') ? parseFloat(formData.get('depreciation_rate') || 0) / 100 : 0
+                };
+                
+                try {
+                    await apiClient.createAssetType(data);
+                    hideModal();
+                    showToast('添加成功');
+                    loadAssetTypes();
+                } catch (error) {
+                    showToast('添加失败', 'error');
+                }
+            });
+        }
+        
+        // 显示添加资产模态框
+        async function showAddAssetModal() {
+            // 加载资产类型
+            try {
+                const types = await apiClient.getAssetTypes();
+                if (types.length === 0) {
+                    showToast('请先添加资产类型', 'error');
+                    return;
+                }
+                assetTypes = types;
+            } catch (error) {
+                showToast('加载资产类型失败', 'error');
+                return;
+            }
+            
+            showModal(`
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">添加资产</h3>
+                        <button onclick="hideModal()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <form id="addAssetForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">资产名称</label>
+                            <input type="text" name="name" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">资产类型</label>
+                            <select name="asset_type_id" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">请选择资产类型</option>
+                                ${assetTypes.map(type => `<option value="${type.id}">${type.name} (${getCategoryName(type.category)})</option>`).join('')}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">当前价值 (￥)</label>
+                            <input type="number" name="current_value" required min="0" step="0.01" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">购买价格 (￥)</label>
+                            <input type="number" name="purchase_value" min="0" step="0.01" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">购买日期</label>
+                            <input type="date" name="purchase_date" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div class="flex space-x-3 pt-4">
+                            <button type="button" onclick="hideModal()" class="flex-1 py-3 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">取消</button>
+                            <button type="submit" class="flex-1 py-3 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600">添加</button>
+                        </div>
+                    </form>
+                </div>
+            `);
+            
+            // 表单提交
+            document.getElementById('addAssetForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const data = {
+                    name: formData.get('name'),
+                    asset_type_id: parseInt(formData.get('asset_type_id')),
+                    current_value: parseFloat(formData.get('current_value')),
+                    purchase_value: formData.get('purchase_value') ? parseFloat(formData.get('purchase_value')) : null,
+                    purchase_date: formData.get('purchase_date') || null
+                };
+                
+                try {
+                    await apiClient.createAsset(data);
+                    hideModal();
+                    showToast('添加成功');
+                    loadAssets();
+                } catch (error) {
+                    showToast('添加失败', 'error');
+                }
+            });
+        }
+        
+        // 显示添加资金流入模态框
+        function showAddCashFlowModal() {
+            showModal(`
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">添加资金流入记录</h3>
+                        <button onclick="hideModal()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <form id="addCashFlowForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">类型</label>
+                            <select name="type" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <option value="">请选择类型</option>
+                                <option value="income">收入</option>
+                                <option value="expense">支出</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">描述</label>
+                            <input type="text" name="description" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="如：工资、房贷、奖金等">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">金额 (￥)</label>
+                            <input type="number" name="amount" required min="0" step="0.01" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">日期</label>
+                            <input type="date" name="date" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">分类</label>
+                            <input type="text" name="category" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="如：工作、投资、生活等">
+                        </div>
+                        <div>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="is_recurring" class="mr-2">
+                                <span class="text-sm text-gray-700">定期重复</span>
+                            </label>
+                        </div>
+                        <div id="recurringOptions" class="hidden">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">重复频率</label>
+                            <select name="recurring_type" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <option value="daily">每天</option>
+                                <option value="weekly">每周</option>
+                                <option value="monthly">每月</option>
+                                <option value="quarterly">每季度</option>
+                                <option value="yearly">每年</option>
+                            </select>
+                        </div>
+                        <div class="flex space-x-3 pt-4">
+                            <button type="button" onclick="hideModal()" class="flex-1 py-3 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">取消</button>
+                            <button type="submit" class="flex-1 py-3 px-4 bg-purple-500 text-white rounded-lg hover:bg-purple-600">添加</button>
+                        </div>
+                    </form>
+                </div>
+            `);
+            
+            // 定期选项切换
+            document.querySelector('input[name="is_recurring"]').addEventListener('change', (e) => {
+                document.getElementById('recurringOptions').classList.toggle('hidden', !e.target.checked);
+            });
+            
+            // 表单提交
+            document.getElementById('addCashFlowForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const data = {
+                    type: formData.get('type'),
+                    description: formData.get('description'),
+                    amount: parseFloat(formData.get('amount')),
+                    date: formData.get('date'),
+                    category: formData.get('category') || null,
+                    is_recurring: formData.get('is_recurring') ? 1 : 0,
+                    recurring_type: formData.get('is_recurring') ? formData.get('recurring_type') : null
+                };
+                
+                try {
+                    await apiClient.createCashFlow(data);
+                    hideModal();
+                    showToast('添加成功');
+                    loadCashFlow();
+                } catch (error) {
+                    showToast('添加失败', 'error');
+                }
+            });
+        }
+        
+        // 设置页面功能
+        async function loadSettings() {
+            try {
+                // 加载用户信息
+                const userInfo = await apiClient.getUserInfo();
+                
+                document.getElementById('usernameInput').value = userInfo.username || '';
+                document.getElementById('phoneInput').value = userInfo.phone || '';
+                document.getElementById('emailInput').value = userInfo.email || '';
+                
+                // 绑定保存按钮事件
+                document.getElementById('saveUserInfoBtn').addEventListener('click', saveUserInfo);
+                
+            } catch (error) {
+                showToast('加载设置失败', 'error');
+            }
+        }
+        
+        // 保存用户信息
+        async function saveUserInfo() {
+            const username = document.getElementById('usernameInput').value.trim();
+            const phone = document.getElementById('phoneInput').value.trim();
+            const email = document.getElementById('emailInput').value.trim();
+            
+            if (!username) {
+                showToast('用户名不能为空', 'error');
+                return;
+            }
+            
+            try {
+                await apiClient.updateUserInfo({ username, phone, email });
+                showToast('保存成功');
+                // 刷新仪表板的用户信息
+                if (currentPage === 'dashboard') {
+                    loadDashboard();
+                }
+            } catch (error) {
+                showToast('保存失败', 'error');
+            }
+        }
+        
+        // 负债操作函数
+        async function deleteLiability(id) {
+            if (!confirm('确定要删除这个负债吗？')) {
+                return;
+            }
+            
+            try {
+                await apiClient.deleteLiability(id);
+                showToast('删除成功');
+                loadLiabilities();
+                // 刷新仪表板数据
+                if (currentPage === 'dashboard') {
+                    loadDashboard();
+                }
+            } catch (error) {
+                showToast('删除失败', 'error');
+            }
+        }
+        
+        async function editLiability(id) {
+            // TODO: 实现负债编辑功能
+            showToast('负债编辑功能待实现', 'info');
+        }
+        
+        // CSS样式
+        const style = document.createElement('style');
+        style.textContent = `
+            .nav-tab {
+                background: transparent;
+                color: #6b7280;
+                transition: all 0.2s ease;
+            }
+            .nav-tab.active {
+                background: #3b82f6;
+                color: white;
+            }
+            .nav-tab:hover {
+                background: #f3f4f6;
+            }
+            .nav-tab.active:hover {
+                background: #2563eb;
+            }
+            .fade-in {
+                animation: fadeIn 0.3s ease-in;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            
+            /* 移动端优化 */
+            @media (max-width: 640px) {
+                .grid {
+                    gap: 0.75rem;
+                }
+                .p-6 {
+                    padding: 1rem;
+                }
+                .text-xl {
+                    font-size: 1.125rem;
+                }
+                .text-2xl {
+                    font-size: 1.25rem;
+                }
+            }
+            
+            /* Toast 动画 */
+            .translate-x-full {
+                transform: translateX(100%);
+            }
+            
+            /* 模态框动画 */
+            .modal-enter {
+                animation: modalEnter 0.3s ease-out;
+            }
+            
+            @keyframes modalEnter {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            /* 按钮点击效果 */
+            .btn-press:active {
+                transform: scale(0.98);
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化菜单
+            initializeMenu();
+            
+            // 初始化导航按钮事件
+            document.getElementById('dashboardBtn').addEventListener('click', () => showPage('dashboard'));
+            document.getElementById('assetsBtn').addEventListener('click', () => showPage('assets'));
+            document.getElementById('liabilitiesBtn').addEventListener('click', () => showPage('liabilities'));
+            document.getElementById('cashFlowBtn').addEventListener('click', () => showPage('cashFlow'));
+            
+            // 默认显示仪表板页面
+            showPage('dashboard');
+        });
+    </script>
+</body>
+</html>

@@ -47,6 +47,63 @@ body {
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	color: #6b7280;
+	background-color: transparent;
+	border: none;
+}
+
+.nav-button:hover {
+	background-color: #f3f4f6;
+	color: #374151;
+}
+
+.nav-button.active {
+	background-color: #3b82f6;
+	color: white;
+}
+
+/* 底部导航按钮 */
+.nav-tab {
+	background: transparent;
+	color: #6b7280;
+	border: none;
+	transition: all 0.2s ease;
+}
+
+.nav-tab.active {
+	color: #3b82f6;
+	background-color: #dbeafe;
+}
+
+.nav-tab:hover {
+	background-color: #f3f4f6;
+}
+
+.nav-tab.active:hover {
+	background-color: #dbeafe;
+}
+
+/* H5移动端优化 */
+@media (max-width: 768px) {
+	body {
+		padding-bottom: 80px; /* 为底部导航留出空间 */
+	}
+	
+	.max-w-6xl {
+		padding-left: 1rem;
+		padding-right: 1rem;
+	}
+	
+	header .flex {
+		flex-wrap: nowrap;
+		overflow-x: auto;
+	}
+	
+	.page-card {
+		margin: 0.5rem;
+		padding: 1rem;
+		border-radius: 1rem;
+	}
 }
 
 /* 小屏模式下隐藏按钮文本，只显示图标 */

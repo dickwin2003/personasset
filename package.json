@@ -1,6 +1,37 @@
 {
+  "name": "personal-asset-portfolio",
+  "version": "2.0.0",
+  "description": "个人投资组合管理系统 - 支持Cloudflare Workers和PostgreSQL数据库",
+  "main": "src/worker-postgres.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "dev:postgres": "wrangler dev --config wrangler-postgres.toml",
+    "deploy:postgres": "wrangler deploy --config wrangler-postgres.toml",
+    "db:init:postgres": "psql -h localhost -U postgres -d personasset -f migrations/init_postgres.sql",
+    "migrate:d1-to-postgres": "node migrations/migrate_d1_to_postgres.js",
+    "dev:mysql": "wrangler dev src/worker-mysql.js",
+    "deploy:mysql": "wrangler deploy src/worker-mysql.js",
+    "db:init:mysql": "mysql -h 139.196.78.195 -u ppg -p personasset < migrations/init_mysql.sql",
+    "db:migrate:mysql": "node migrations/migrate_d1_to_mysql.js"
+  },
   "dependencies": {
     "chart.js": "^4.5.0",
-    "chartjs-plugin-datalabels": "^2.2.0"
-  }
+    "chartjs-plugin-datalabels": "^2.2.0",
+    "itty-router": "^4.0.0",
+    "mysql2": "^3.14.3",
+    "pg": "^8.11.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.28.1"
+  },
+  "keywords": [
+    "cloudflare",
+    "workers",
+    "d1",
+    "asset-management",
+    "portfolio"
+  ],
+  "author": "Cyberteng",
+  "license": "GPL-3.0"
 }
